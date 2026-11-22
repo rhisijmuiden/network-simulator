@@ -24,7 +24,7 @@ import {
 } from "@netsim/engine";
 import { Badge, Button, Toggle } from "../components/ui";
 import { AclEditor } from "./AclEditor";
-import { hasConsole } from "./Console";
+import { ServicesEditor } from "./ServicesEditor";
 import { CommitInput, IconButton, MiniTable, Row, Section, SmallSelect } from "./fields";
 import { DeviceIcon } from "./glyphs";
 import { findDevice, removeDevice, removeIface, removeLink, updateDevice, updateIface, edit } from "./ops";
@@ -77,7 +77,7 @@ function Panel({ title, icon, actions, onClose, children }: { title: React.React
   );
 }
 
-type Tab = "general" | "interfaces" | "routing" | "vlans" | "acls" | "state";
+type Tab = "general" | "interfaces" | "services" | "routing" | "vlans" | "acls" | "state";
 
 function DevicePanel(props: Props & { device: Device }) {
   const { device, topology, readOnly, onChange } = props;
@@ -87,6 +87,7 @@ function DevicePanel(props: Props & { device: Device }) {
     { id: "general", label: t("inspector.tabs.general") },
     { id: "interfaces", label: t("inspector.tabs.interfaces") },
   ];
+  if (device.kind === "server") tabs.push({ id: "services", label: t("inspector.tabs.services") });
   if (device.kind === "router" || device.kind === "l3switch") tabs.push({ id: "routing", label: t("inspector.tabs.routing") });
   if (isSwitch(device)) tabs.push({ id: "vlans", label: t("inspector.tabs.vlans") });
   if (device.kind === "router" || device.kind === "l3switch") tabs.push({ id: "acls", label: t("inspector.tabs.acls") });
@@ -112,7 +113,7 @@ function DevicePanel(props: Props & { device: Device }) {
         </>
       }
       actions={
-        props.onOpenConsole && hasConsole(device.kind) ? (
+        props.onOpenConsole ? (
           <IconButton title={t("console.open")} onClick={() => props.onOpenConsole!(device.id)}>
             <TerminalSquare size={18} />
           </IconButton>
@@ -136,6 +137,7 @@ function DevicePanel(props: Props & { device: Device }) {
       <fieldset disabled={readOnly} className="min-w-0">
         {current === "general" && <GeneralTab {...props} set={set} />}
         {current === "interfaces" && <InterfacesTab {...props} />}
+        {current === "services" && <ServicesEditor device={device} set={set} />}
         {current === "routing" && <RoutingTab {...props} set={set} />}
         {current === "vlans" && <VlansTab {...props} set={set} />}
         {current === "acls" && <AclEditor device={device} onChange={(fn) => set(fn)} />}
@@ -145,38 +147,70 @@ function DevicePanel(props: Props & { device: Device }) {
   );
 }
 
-function GeneralTab({ device, topology, onChange, onSelect, set }: Props & { device: Device; set: (fn: (d: Device) => void) => void }) {
+function HostNetwork({ device, topology, sim, onChange, set }: { device: Device; topology: Topology; sim: Simulator; onChange: (t: Topology) => void; set: (fn: (d: Device) => void) => void }) {
+  const { t } = useTranslation();
+  const nic = device.interfaces[0]!;
+  const lease = sim.leases.get(nic.id);
+  return (
+    <Section title={t("inspector.network")}>
+      <Toggle
+        checked={!!nic.dhcp}
+        onChange={(v) => onChange(updateIface(topology, device.id, nic.id, (i) => void (i.dhcp = v)))}
+        label={t("inspector.dhcp")}
+        description={t("inspector.dhcpHint")}
+      />
+      <div className="mt-3 space-y-2">
+        {nic.dhcp ? (
+          <Row label={t("inspector.ipAddress")}>
+            {lease && "address" in lease ? (
+              <span className="font-mono text-xs">
+                {lease.address}/{lease.prefix}
+                {lease.gateway && <span className="text-muted"> via {lease.gateway}</span>}
+              </span>
+            ) : (
+              <Badge tone="warn">{t(`inspector.lease.${lease && "error" in lease ? lease.error : "noServer"}`)}</Badge>
+            )}
+          </Row>
+        ) : (
+          <>
+            <Row label={t("inspector.ipAddress")} hint={t("inspector.ipHint")}>
+              <CommitInput
+                mono
+                value={formatIfaceAddress(nic.ip)}
+                placeholder="192.168.1.10/24"
+                parse={parseIfaceAddress}
+                onCommit={(ip) => onChange(updateIface(topology, device.id, nic.id, (i) => (ip ? (i.ip = ip) : delete i.ip)))}
+              />
+            </Row>
+            <Row label={t("inspector.gateway")}>
+              <CommitInput mono value={device.defaultGateway ?? ""} placeholder="192.168.1.1" parse={parseOptionalIp} onCommit={(gw) => set((d) => (gw ? (d.defaultGateway = gw) : delete d.defaultGateway))} />
+            </Row>
+          </>
+        )}
+        <Row label={t("inspector.dns")} hint={nic.dhcp ? t("inspector.dnsDhcpHint") : undefined}>
+          <CommitInput
+            mono
+            value={device.dnsServers?.[0] ?? ""}
+            placeholder={nic.dhcp ? (sim.topology.devices.find((d) => d.id === device.id)?.dnsServers?.[0] ?? "") : "10.0.0.53"}
+            parse={parseOptionalIp}
+            onCommit={(v) => set((d) => (v ? (d.dnsServers = [v]) : delete d.dnsServers))}
+          />
+        </Row>
+        <Row label={t("inspector.mac")}>
+          <span className="font-mono text-xs text-muted">{nic.mac}</span>
+        </Row>
+      </div>
+    </Section>
+  );
+}
+
+function GeneralTab({ device, topology, sim, onChange, onSelect, set }: Props & { device: Device; set: (fn: (d: Device) => void) => void }) {
   const { t } = useTranslation();
   const nic = device.interfaces[0];
   const mgmt = device.interfaces.find((i) => i.type === "svi" && i.vlan === 1);
   return (
     <>
-      {isHost(device) && nic && (
-        <Section title={t("inspector.network")}>
-          <Row label={t("inspector.ipAddress")} hint={t("inspector.ipHint")}>
-            <CommitInput
-              mono
-              value={formatIfaceAddress(nic.ip)}
-              placeholder="192.168.1.10/24"
-              parse={parseIfaceAddress}
-              onCommit={(ip) => onChange(updateIface(topology, device.id, nic.id, (i) => (ip ? (i.ip = ip) : delete i.ip)))}
-            />
-          </Row>
-          <Row label={t("inspector.gateway")}>
-            <CommitInput mono value={device.defaultGateway ?? ""} placeholder="192.168.1.1" parse={parseOptionalIp} onCommit={(gw) => set((d) => (gw ? (d.defaultGateway = gw) : delete d.defaultGateway))} />
-          </Row>
-          <Row label={t("inspector.mac")}>
-            <span className="font-mono text-xs text-muted">{nic.mac}</span>
-          </Row>
-        </Section>
-      )}
-      {device.kind === "server" && (
-        <Section title={t("inspector.services")}>
-          <Row label={t("inspector.listenPorts")} hint={t("inspector.listenHint")}>
-            <CommitInput mono value={device.listenPorts.join(", ")} placeholder="80, 443" parse={parsePortList} onCommit={(p) => set((d) => void (d.listenPorts = p))} />
-          </Row>
-        </Section>
-      )}
+      {isHost(device) && nic && <HostNetwork device={device} topology={topology} sim={sim} onChange={onChange} set={set} />}
       {device.kind === "switch" && mgmt && (
         <Section title={t("inspector.management")}>
           <Row label={t("inspector.ipAddress")} hint={t("inspector.mgmtHint")}>

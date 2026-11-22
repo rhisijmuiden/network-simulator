@@ -30,6 +30,24 @@ export const InterfaceSchema = z.object({
   aclIn: text(64).optional(),
   aclOut: text(64).optional(),
   stpCost: z.number().int().min(1).max(200000000).optional(),
+  dhcp: z.boolean().optional(),
+  helperAddress: ip.optional(),
+});
+
+const ServicesSchema = z.object({
+  web: z.object({ enabled: z.boolean(), title: text(200), body: text(5000) }).optional(),
+  dns: z.object({ enabled: z.boolean(), records: z.array(z.object({ id, name: text(253).min(1), address: ip })).max(500) }).optional(),
+  dhcp: z
+    .object({
+      enabled: z.boolean(),
+      pools: z
+        .array(
+          z.object({ id, name: text(64).min(1), network: ip, prefix: z.number().int().min(0).max(32), start: ip, end: ip, gateway: ip.optional(), dns: ip.optional() }),
+        )
+        .max(50),
+    })
+    .optional(),
+  files: z.object({ enabled: z.boolean(), shares: z.array(z.object({ id, name: text(80).min(1), files: z.array(text(200)).max(200) })).max(50) }).optional(),
 });
 
 export const DeviceSchema = z.object({
@@ -73,6 +91,8 @@ export const DeviceSchema = z.object({
     .default([]),
   listenPorts: z.array(z.number().int().min(1).max(65535)).max(100).default([]),
   protocols: z.record(z.string(), z.unknown()).default({}),
+  dnsServers: z.array(ip).max(4).optional(),
+  services: ServicesSchema.optional(),
 });
 
 export const TopologySchema = z.object({

@@ -2,7 +2,7 @@ import { createDevice, createSubinterface, newId } from "./catalog.js";
 import { emptyTopology, type Device, type Interface, type Topology } from "./model.js";
 
 /** Starter topologies offered when creating a new one. Names are i18n keys `templates.<id>`. */
-export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant", "ospf", "bgp"] as const;
+export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant", "ospf", "bgp", "services"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 function builder() {
@@ -154,6 +154,29 @@ export function createFromTemplate(id: TemplateId): Topology {
         .link("R2", "GigabitEthernet0/0", "SRV1", "Ethernet0");
       b.device("R1").protocols.bgp = { asn: 65001, neighbors: [{ address: "192.0.2.2", remoteAs: 65002 }], networks: [{ network: "10.1.0.0", prefix: 24 }] };
       b.device("R2").protocols.bgp = { asn: 65002, neighbors: [{ address: "192.0.2.1", remoteAs: 65001 }], networks: [{ network: "10.2.0.0", prefix: 24 }] };
+      return b.t;
+    }
+    case "services": {
+      // Office LAN on DHCP (relayed by R1), server LAN with a DHCP, DNS, web and file server.
+      const b = builder()
+        .add("router", "R1", 420, 140)
+        .add("switch24", "SW1", 240, 300)
+        .add("pc", "PC1", 120, 460, (d) => void (d.interfaces[0]!.dhcp = true))
+        .add("pc", "PC2", 360, 460, (d) => void (d.interfaces[0]!.dhcp = true))
+        .host("server", "SRV1", 620, 300, "10.2.0.10", "10.2.0.1")
+        .cfg("R1", "GigabitEthernet0/0", { ip: { address: "10.1.0.1", prefix: 24 }, helperAddress: "10.2.0.10" })
+        .cfg("R1", "GigabitEthernet0/1", { ip: { address: "10.2.0.1", prefix: 24 } })
+        .link("R1", "GigabitEthernet0/0", "SW1", "GigabitEthernet0/1")
+        .link("PC1", "Ethernet0", "SW1", "FastEthernet0/1")
+        .link("PC2", "Ethernet0", "SW1", "FastEthernet0/2")
+        .link("R1", "GigabitEthernet0/1", "SRV1", "Ethernet0");
+      b.device("SRV1").dnsServers = ["10.2.0.10"];
+      b.device("SRV1").services = {
+        web: { enabled: true, title: "Intranet", body: "<h1>Welcome to the lab intranet</h1>" },
+        dns: { enabled: true, records: [{ id: newId("n"), name: "intranet.lab.local", address: "10.2.0.10" }, { id: newId("n"), name: "files.lab.local", address: "10.2.0.10" }] },
+        dhcp: { enabled: true, pools: [{ id: newId("p"), name: "OFFICE", network: "10.1.0.0", prefix: 24, start: "10.1.0.100", end: "10.1.0.199", gateway: "10.1.0.1", dns: "10.2.0.10" }] },
+        files: { enabled: true, shares: [{ id: newId("s"), name: "Public", files: ["readme.txt", "network-plan.pdf"] }] },
+      };
       return b.t;
     }
   }

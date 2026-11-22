@@ -89,6 +89,7 @@ const H: Record<string, string> = {
   encapsulation: "Set encapsulation type for an interface",
   dot1q: "IEEE 802.1Q Virtual LAN",
   "access-group": "Specify access control for packets",
+  "helper-address": "Specify a destination address for UDP broadcasts",
   in: "inbound packets",
   out: "outbound packets",
   cost: "Change an interface's spanning tree port path cost",
@@ -643,6 +644,19 @@ function interfaceCommands(): CommandDef<Ctx>[] {
     cmd(
       "ip access-group <word:name> out",
       (c, a, negate) => forIfaces(c, (i) => (negate ? delete i.aclOut : (i.aclOut = a.name))),
+      true,
+    ),
+    cmd(
+      "ip helper-address <ip:gw>",
+      (c, a, negate) => forIfaces(c, (i) => (negate ? delete i.helperAddress : (i.helperAddress = a.gw))),
+      true,
+    ),
+    cmd(
+      "ip helper-address",
+      (c, _a, negate) => {
+        if (!negate) return err(c, "% Incomplete command.");
+        forIfaces(c, (i) => delete i.helperAddress);
+      },
       true,
     ),
     cmd("spanning-tree cost <num:c:1-200000000>", (c, a, negate) => forIfaces(c, (i) => (negate ? delete i.stpCost : (i.stpCost = Number(a.c)))), true),

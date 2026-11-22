@@ -2,6 +2,7 @@ import { shortName } from "./catalog.js";
 import { inSubnet, isUsableHost, networkOf, parseIp } from "./ip.js";
 import { isHost, isSwitch, isSwitchport, type Device, type Interface, type Topology } from "./model.js";
 import { NetworkIndex } from "./network.js";
+import { resolveDhcp } from "./services.js";
 import { bgpState } from "./protocols/bgp.js";
 import { ospfNeighbors } from "./protocols/ospf.js";
 import { buildRoutingTables } from "./routing.js";
@@ -16,9 +17,17 @@ export interface Finding {
 }
 
 /** Static configuration checks: the mistakes that make a lab not work, found without sending a packet. */
-export function diagnose(topology: Topology): Finding[] {
+export function diagnose(configured: Topology): Finding[] {
+  // Check the network as it runs: with the DHCP leases applied.
+  const dhcp = resolveDhcp(configured);
+  const topology = dhcp.topology;
   const net = new NetworkIndex(topology);
   const out: Finding[] = [];
+  for (const [ifaceId, l] of dhcp.leases) {
+    if ("address" in l) continue;
+    const ref = net.ifaces.get(ifaceId);
+    if (ref && net.isUp(ref.iface)) out.push({ severity: "warning", code: `dhcp.${l.error}`, device: ref.device.id, params: { device: ref.device.name } });
+  }
   const label = (d: Device, i?: Interface) => (i ? `${d.name} ${shortName(i.name)}` : d.name);
 
   // Duplicate addresses.
@@ -50,7 +59,7 @@ export function diagnose(topology: Topology): Finding[] {
         if (!inSubnet(gw, parseIp(nic.ip!.address)!, nic.ip!.prefix))
           out.push({ severity: "error", code: "gatewayOutside", device: d.id, params: { device: d.name, gateway: d.defaultGateway } });
       } else if (nic && isHost(d)) out.push({ severity: "info", code: "noGateway", device: d.id, params: { device: d.name } });
-      else if (!nic && isHost(d)) out.push({ severity: "warning", code: "noAddress", device: d.id, params: { device: d.name } });
+      else if (!nic && isHost(d) && !d.interfaces.some((i) => i.dhcp)) out.push({ severity: "warning", code: "noAddress", device: d.id, params: { device: d.name } });
     }
 
     for (const i of d.interfaces) {

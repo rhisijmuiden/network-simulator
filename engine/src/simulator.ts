@@ -4,6 +4,7 @@ import { isHost, isSwitch, isSwitchport, type Device, type Endpoint, type Interf
 import { NetworkIndex } from "./network.js";
 import { BROADCAST_MAC, type ArpPacket, type Frame, type FrameInfo, type Ipv4Packet, type UnreachableCode } from "./packets.js";
 import { buildRoutingTables, resolveRoute, type RouteEntry } from "./routing.js";
+import { resolveDhcp, tcpPorts, udpPorts, type Lease, type LeaseFailure } from "./services.js";
 import { computeStp, type StpBridge, type StpPort } from "./stp.js";
 import "./protocols/ospf.js";
 import "./protocols/bgp.js";
@@ -81,7 +82,17 @@ export interface TcpResult {
   at?: string;
 }
 
-export type OperationResult = PingResult | TraceResult | TcpResult;
+export interface UdpResult {
+  op: "udp";
+  source: string;
+  target: string;
+  port: number;
+  status: "answered" | "port-unreachable" | "filtered" | "unreachable" | "timeout";
+  reason?: DropReason;
+  at?: string;
+}
+
+export type OperationResult = PingResult | TraceResult | TcpResult | UdpResult;
 
 export interface OperationRun<R extends OperationResult = OperationResult> {
   result: R;
@@ -143,8 +154,17 @@ export class Simulator {
   private lastDrop = new Map<number, { reason: DropReason; device: string }>();
   private readonly opts: Required<SimOptions>;
 
-  constructor(readonly topology: Topology, opts: SimOptions = {}) {
+  /** The topology as simulated: the configured one with DHCP leases applied. */
+  readonly topology: Topology;
+  /** DHCP results per host interface id. */
+  readonly leases: Map<string, Lease | LeaseFailure>;
+
+  constructor(topology: Topology, opts: SimOptions = {}) {
     this.opts = { hopTime: 1, arpTimeout: 20, replyTimeout: 40, maxFrames: 3000, ...opts };
+    const dhcp = resolveDhcp(topology);
+    this.topology = dhcp.topology;
+    this.leases = dhcp.leases;
+    topology = dhcp.topology;
     this.net = new NetworkIndex(topology);
     this.stp = computeStp(this.net);
     this.routes = buildRoutingTables(this.net);
@@ -256,6 +276,28 @@ export class Simulator {
         else if (p.icmp?.type === "unreachable") finish(p.icmp.code === "admin" ? "filtered" : "unreachable", this.takeDrop(flow));
       });
       const err = this.originate(src, { kind: "ipv4", src: 0, dst, ttl: this.defaultTtl(src), flow, protocol: "tcp", tcp: { srcPort, dstPort: port, flags: "syn" } });
+      if (err) finish("unreachable", { reason: err, at: src.id });
+    });
+  }
+
+  /** Sends one UDP datagram (for example a DNS query) and waits for an answer. */
+  udpQuery(sourceId: string, target: string, port: number): OperationRun<UdpResult> {
+    const result: UdpResult = { op: "udp", source: sourceId, target, port, status: "timeout" };
+    return this.operation(result, (flow, src, dst) => {
+      let done = false;
+      const finish = (status: UdpResult["status"], extra: Partial<UdpResult> = {}) => {
+        if (done) return;
+        done = true;
+        timer.cancelled = true;
+        Object.assign(result, { status, ...extra });
+      };
+      const timer = this.at(this.now + this.opts.replyTimeout, () => finish("timeout", this.takeDrop(flow)));
+      const srcPort = 49152 + (flow % 16000);
+      this.listen(flow, src, (_d, p) => {
+        if (p.protocol === "udp" && p.udp?.srcPort === port) finish("answered");
+        else if (p.icmp?.type === "unreachable") finish(p.icmp.code === "port" ? "port-unreachable" : p.icmp.code === "admin" ? "filtered" : "unreachable", this.takeDrop(flow));
+      });
+      const err = this.originate(src, { kind: "ipv4", src: 0, dst, ttl: this.defaultTtl(src), flow, protocol: "udp", udp: { srcPort, dstPort: port } });
       if (err) finish("unreachable", { reason: err, at: src.id });
     });
   }
@@ -580,8 +622,10 @@ export class Simulator {
     if (p.protocol === "icmp" && p.icmp?.type === "echo-request") {
       reply({ protocol: "icmp", icmp: { type: "echo-reply", id: p.icmp.id, seq: p.icmp.seq } });
     } else if (p.protocol === "tcp" && p.tcp?.flags === "syn") {
-      const open = device.listenPorts.includes(p.tcp.dstPort);
+      const open = tcpPorts(device).includes(p.tcp.dstPort);
       reply({ protocol: "tcp", tcp: { srcPort: p.tcp.dstPort, dstPort: p.tcp.srcPort, flags: open ? "syn-ack" : "rst" } });
+    } else if (p.protocol === "udp" && p.udp && udpPorts(device).includes(p.udp.dstPort)) {
+      reply({ protocol: "udp", udp: { srcPort: p.udp.dstPort, dstPort: p.udp.srcPort } });
     } else if (p.protocol === "udp") {
       this.icmpError(device, iface, p, "unreachable", "port");
     }

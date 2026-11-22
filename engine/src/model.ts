@@ -44,6 +44,10 @@ export interface Interface {
   aclOut?: string;
   /** STP port cost override; derived from speed when absent. */
   stpCost?: number;
+  /** Hosts: get the address, gateway and DNS server from a DHCP server. */
+  dhcp?: boolean;
+  /** Routers: forward DHCP broadcasts to this server (`ip helper-address`). */
+  helperAddress?: string;
 }
 
 export interface StaticRoute {
@@ -124,6 +128,30 @@ export interface Device {
    * protocol id. The engine keeps them as-is; providers registered in routing.ts read them.
    */
   protocols: Record<string, unknown>;
+  /** Hosts: DNS servers, in order. */
+  dnsServers?: string[];
+  /** Servers: the network services they run. */
+  services?: Services;
+}
+
+export interface DhcpPool {
+  id: string;
+  name: string;
+  /** Subnet the pool serves; a request is answered from the pool that contains the relay or server address. */
+  network: string;
+  prefix: number;
+  /** First and last address handed out. */
+  start: string;
+  end: string;
+  gateway?: string;
+  dns?: string;
+}
+
+export interface Services {
+  web?: { enabled: boolean; title: string; body: string };
+  dns?: { enabled: boolean; records: { id: string; name: string; address: string }[] };
+  dhcp?: { enabled: boolean; pools: DhcpPool[] };
+  files?: { enabled: boolean; shares: { id: string; name: string; files: string[] }[] };
 }
 
 export interface Endpoint {

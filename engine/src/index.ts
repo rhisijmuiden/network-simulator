@@ -15,3 +15,5 @@ export * from "./cli/ios.js";
 export * as iosShow from "./cli/show.js";
 export * from "./protocols/ospf.js";
 export * from "./protocols/bgp.js";
+export * from "./services.js";
+export * from "./cli/windows.js";

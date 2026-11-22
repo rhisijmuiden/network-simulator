@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { DEVICE_MODELS, shortName } from "@netsim/engine";
 import { Badge, Card, PageHeader } from "../../components/ui";
 import { DeviceIcon } from "../../editor/glyphs";
-import { hasConsole } from "../../editor/Console";
 
 /** Read-only overview of the device models that can be placed in a topology. */
 export default function DeviceLibrary() {
@@ -27,7 +26,7 @@ export default function DeviceLibrary() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="text-lg font-bold">{t(`catalog.${m.label}`)}</h2>
                     <Badge>{t(`devices.kind.${m.kind}`)}</Badge>
-                    {hasConsole(m.kind) && <Badge tone="ok">{t("devices.cli")}</Badge>}
+                    <Badge tone="ok">{m.kind === "pc" || m.kind === "server" ? t("devices.cmd") : t("devices.cli")}</Badge>
                   </div>
                   <p className="mt-0.5 text-sm text-muted">{m.platform}</p>
                   <p className="mt-2 text-sm">{t(`devices.about.${m.id}`)}</p>

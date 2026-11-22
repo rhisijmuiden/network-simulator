@@ -16,7 +16,7 @@ works and what does not.
 | --- | --- | --- |
 | 1 | Foundation: users, mail server, encrypted backups, updates from the UI, English and Dutch | Done |
 | 2 | Simulation engine, visual topology editor, animated traffic flows | Done |
-| 3 | Cisco-style router and switch CLI built from scratch (incl. Catalyst 6500 style): VLANs, trunks, static routing, OSPF, BGP, ACLs, later IPsec. Windows workstations and web/file servers | In progress: the CLI, browser console, OSPF and BGP are done ([docs/console.md](docs/console.md)) |
+| 3 | Cisco-style router and switch CLI built from scratch (incl. Catalyst 6500 style): VLANs, trunks, static routing, OSPF, BGP, ACLs, later IPsec. Windows workstations and web/file servers | In progress: the CLI, browser console, OSPF, BGP, the Windows-style command prompt and DHCP/DNS/web/file servers are done ([console](docs/console.md), [hosts](docs/hosts.md)); IPsec follows |
 | 4 | Lessons and troubleshooting assignments with automatic checks | Planned |
 
 No real Cisco images are used: every device is simulated by the platform's own engine.
