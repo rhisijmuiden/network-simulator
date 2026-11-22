@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import "@brand/fonts/archivo/archivo.css";
+@import "@brand/tokens/tokens.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* RHIS tokens as Tailwind colours: bg-surface, text-ink, border-line, bg-accent ... */
+@theme inline {
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --color-nacht: var(--nacht);
+  --color-koraal: var(--koraal);
+  --color-lucht: var(--lucht);
+  --color-wolk: var(--wolk);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-ok: var(--status-online);
+  --color-warn: var(--status-warning);
+  --color-bad: var(--status-offline);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings in the wide Archivo cut, as in the style guide. */
+.display {
+  font-stretch: 125%;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--koraal);
+  outline-offset: 2px;
+}
+
+/* Subtle signal animation for the logo antenna and loaders. */
+@keyframes signal {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.signal-1 { animation: signal 1.6s ease-in-out infinite; }
+.signal-2 { animation: signal 1.6s ease-in-out 0.3s infinite; }

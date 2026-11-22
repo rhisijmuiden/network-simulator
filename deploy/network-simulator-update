@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# Network Simulator privileged updater. Started by network-simulator-update.path
+# when the web interface writes /var/lib/network-simulator/update/request.json
+# ("Update now" or a channel switch in Info / Updates).
+#
+#   1. fetches the production and test branches from GitHub,
+#   2. checks that the requested commit is on the requested branch,
+#   3. builds the release next to the running one (no downtime yet),
+#   4. backs up the database, stops the server, migrates, switches and starts,
+#   5. waits until /healthz reports the new commit; otherwise it puts the
+#      previous release and the database back.
+#
+# The request file only carries a branch name and a commit id, never a URL or
+# a command, and both are validated.
+set -euo pipefail
+
+BASE=/opt/network-simulator
+ENV_FILE=/etc/network-simulator/server.env
+REQUEST=/var/lib/network-simulator/update/request.json
+STATE=/var/lib/network-simulator-update
+STATUS=$STATE/status.json
+BACKUPS=$STATE/backups
+DB_NAME=network_simulator
+KEEP_RELEASES=3
+KEEP_BACKUPS=3
+
+PORT=$(sed -n 's/^NETSIM_PORT=//p' "$ENV_FILE")
+HEALTH="http://127.0.0.1:${PORT:-8080}/healthz"
+STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+CHANNEL=""
+FROM=""
+TO=""
+FROM_VERSION=""
+TO_VERSION=""
+
+status() { # state message
+    local tmp
+    tmp=$(mktemp "$STATE/.status.XXXXXX")
+    jq -n --arg state "$1" --arg msg "${2:-}" --arg channel "$CHANNEL" \
+        --arg from "$FROM" --arg to "$TO" --arg fromV "$FROM_VERSION" --arg toV "$TO_VERSION" \
+        --arg started "$STARTED" --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        '{state: $state, message: $msg, channel: $channel, fromCommit: $from, toCommit: $to,
+          fromVersion: $fromV, toVersion: $toV, startedAt: $started, updatedAt: $now}' >"$tmp"
+    chmod 0644 "$tmp"
+    mv -f "$tmp" "$STATUS"
+    echo "network-simulator-update: $1 ${2:-}"
+}
+
+git_auth() {
+    local token
+    token=$(sed -n 's/^NETSIM_UPDATE_TOKEN=//p' "$ENV_FILE")
+    [[ -n "$token" ]] && printf -- '-c\nhttp.extraHeader=Authorization: Basic %s\n' "$(printf 'x-access-token:%s' "$token" | base64 -w0)"
+    return 0
+}
+
+healthy() { # expected commit
+    local body
+    for _ in $(seq 1 60); do
+        if body=$(curl -fsS --max-time 3 "$HEALTH" 2>/dev/null); then
+            if [[ "$(jq -r .commit <<<"$body")" == "$1" && "$(jq -r .database <<<"$body")" == "ok" ]]; then
+                return 0
+            fi
+        fi
+        sleep 2
+    done
+    return 1
+}
+
+build_release() { # commit branch -> release dir
+    local rel="$BASE/releases/$1"
+    if [[ -f "$rel/.complete" ]]; then echo "$rel"; return 0; fi
+    rm -rf "$rel.tmp"
+    mkdir -p "$rel.tmp"
+    git -C "$BASE/repo" archive "$1" | tar -x -C "$rel.tmp" || return 1
+    (cd "$rel.tmp" && npm ci --no-audit --no-fund --loglevel=error &&
+        NETSIM_COMMIT="$1" NETSIM_BRANCH="$2" npm run build --silent &&
+        npm prune --omit=dev --no-audit --no-fund --loglevel=error) >&2 || return 1
+    touch "$rel.tmp/.complete"
+    rm -rf "$rel"
+    mv "$rel.tmp" "$rel"
+    echo "$rel"
+}
+
+cli() { # release dir, args...
+    local rel="$1"; shift
+    # shellcheck source=/dev/null
+    (set -a; . "$ENV_FILE"; set +a; cd "$rel" && setpriv --reuid=netsim --regid=netsim --init-groups -- /usr/bin/node server/dist/cli.js "$@")
+}
+
+main() {
+    install -d -m 0755 "$STATE"
+    install -d -m 0700 "$BACKUPS"
+    [[ -f "$REQUEST" && ! -L "$REQUEST" ]] || { rm -f "$REQUEST"; exit 0; }
+    CHANNEL=$(jq -r '.channel // empty' "$REQUEST" 2>/dev/null || true)
+    TO=$(jq -r '.commit // empty' "$REQUEST" 2>/dev/null || true)
+    rm -f "$REQUEST"
+    local current_rel
+    current_rel=$(readlink -f "$BASE/current")
+    FROM=$(basename "$current_rel")
+    FROM_VERSION=$(jq -r .version "$current_rel/package.json" 2>/dev/null || echo "")
+    if [[ ! "$CHANNEL" =~ ^(production|test)$ || ! "$TO" =~ ^[0-9a-f]{40}$ ]]; then
+        status failed "Invalid update request"
+        exit 1
+    fi
+
+    status fetching "Downloading the $CHANNEL branch"
+    local -a auth
+    mapfile -t auth < <(git_auth)
+    if ! git -C "$BASE/repo" "${auth[@]}" fetch --quiet --prune origin \
+        "+refs/heads/production:refs/remotes/origin/production" "+refs/heads/test:refs/remotes/origin/test"; then
+        status failed "Could not reach GitHub"
+        exit 1
+    fi
+    if ! git -C "$BASE/repo" merge-base --is-ancestor "$TO" "origin/$CHANNEL" 2>/dev/null; then
+        status failed "Commit ${TO:0:7} is not on the $CHANNEL branch"
+        exit 1
+    fi
+    TO_VERSION=$(git -C "$BASE/repo" show "$TO:package.json" | jq -r .version)
+
+    status building "Building $TO_VERSION (${TO:0:7})"
+    local new_rel
+    if ! new_rel=$(build_release "$TO" "$CHANNEL"); then
+        rm -rf "$BASE/releases/$TO.tmp"
+        status failed "Build of ${TO:0:7} failed; nothing was changed"
+        exit 1
+    fi
+
+    status backup "Backing up the database"
+    local dump
+    dump="$BACKUPS/pre-update-${FROM:0:12}-$(date -u +%Y%m%dT%H%M%SZ).dump"
+    if ! runuser -u postgres -- pg_dump --format=custom "$DB_NAME" >"$dump"; then
+        status failed "Database backup failed; nothing was changed"
+        exit 1
+    fi
+    find "$BACKUPS" -name 'pre-update-*.dump' -printf '%T@ %p\n' | sort -rn | tail -n +$((KEEP_BACKUPS + 1)) | cut -d' ' -f2- | xargs -r rm -f
+
+    status installing "Installing $TO_VERSION"
+    systemctl stop network-simulator.service
+    if cli "$new_rel" migrate && ln -sfn "$new_rel" "$BASE/current" && systemctl start network-simulator.service && healthy "$TO"; then
+        # The new release may bring a newer updater and units.
+        install -m 0755 "$new_rel/deploy/network-simulator-update" /usr/local/sbin/network-simulator-update
+        install -m 0755 "$new_rel/deploy/network-simulator-restore" /usr/local/sbin/network-simulator-restore
+        install -m 0755 "$new_rel/deploy/network-simulator-cli" /usr/local/bin/network-simulator
+        install -m 0644 "$new_rel"/deploy/systemd/*.service "$new_rel"/deploy/systemd/*.path /etc/systemd/system/
+        systemctl daemon-reload
+        # Keep the newest releases, always including the running one.
+        ls -1dt "$BASE"/releases/*/ 2>/dev/null | sed 's:/$::' | grep -v -e "^$new_rel$" -e "^$current_rel$" |
+            tail -n +$((KEEP_RELEASES - 1)) | xargs -r rm -rf
+        status completed "Updated from ${FROM_VERSION:-?} (${FROM:0:7}) to $TO_VERSION (${TO:0:7}) on $CHANNEL"
+        exit 0
+    fi
+
+    status rolling-back "The new version did not start; restoring ${FROM_VERSION:-the previous version}"
+    systemctl stop network-simulator.service || true
+    ln -sfn "$current_rel" "$BASE/current"
+    if runuser -u postgres -- pg_restore --clean --if-exists --no-owner --role=netsim -d "$DB_NAME" "$dump" &&
+        systemctl start network-simulator.service && healthy "$FROM"; then
+        status rolled-back "Update to $TO_VERSION failed; ${FROM_VERSION:-the previous version} was restored"
+    else
+        status failed "Update failed and the rollback did not complete; database backup: $dump"
+    fi
+    exit 1
+}
+
+main "$@"

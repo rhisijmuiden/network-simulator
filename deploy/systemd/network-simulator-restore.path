@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for Network Simulator restore requests from the web interface
+
+[Path]
+PathExists=/var/lib/network-simulator/restore/request.json
+Unit=network-simulator-restore.service
+
+[Install]
+WantedBy=multi-user.target

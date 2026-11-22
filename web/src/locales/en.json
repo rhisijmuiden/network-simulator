@@ -1,0 +1,407 @@
+{
+  "common": {
+    "save": "Save",
+    "saved": "Saved.",
+    "cancel": "Cancel",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete",
+    "secretKept": "Stored. Leave empty to keep it."
+  },
+  "nav": {
+    "lab": "Lab",
+    "dashboard": "Dashboard",
+    "topologies": "Topologies",
+    "devices": "Device library",
+    "console": "Console",
+    "lessons": "Lessons & labs",
+    "administration": "Administration",
+    "users": "Users",
+    "mail": "Mail server",
+    "backup": "Backup & restore",
+    "updates": "Updates",
+    "audit": "Audit log",
+    "soon": "Soon"
+  },
+  "top": {
+    "menu": "Menu",
+    "info": "Info",
+    "language": "Language",
+    "theme": {
+      "system": "Theme: system",
+      "light": "Theme: light",
+      "dark": "Theme: dark"
+    },
+    "profile": "Profile",
+    "changePassword": "Change password",
+    "logout": "Sign out"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "instructor": "Instructor",
+    "student": "Student"
+  },
+  "login": {
+    "title": "Sign in",
+    "subtitle": "Welcome to Network Simulator.",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in",
+    "forgot": "Forgot your password? Ask an administrator to reset it.",
+    "heroA": "Build it. Break it.",
+    "heroB": "Fix it.",
+    "heroText": "Routers, switches, VLANs, OSPF and BGP in your browser. Watch every packet travel."
+  },
+  "password": {
+    "current": "Current password",
+    "new": "New password",
+    "repeat": "Repeat",
+    "rules": "At least 10 characters, not only letters or only digits.",
+    "save": "Change password",
+    "mismatch": "The passwords do not match.",
+    "changed": "Your password has been changed. Other sessions were signed out.",
+    "forceTitle": "Choose a password",
+    "forceText": "You signed in with a one-time password. Choose your own password to continue."
+  },
+  "profile": {
+    "title": "Profile",
+    "details": "Your details"
+  },
+  "info": {
+    "title": "About Network Simulator",
+    "version": "Version",
+    "commit": "Commit",
+    "built": "Built",
+    "database": "Database",
+    "schema": "schema {{version}}",
+    "moreUpdates": "Open the Updates page",
+    "adminOnly": "Administrators can check for and install updates here."
+  },
+  "updates": {
+    "title": "Updates",
+    "subtitle": "Check for new versions, install them and switch between the production and test channel.",
+    "channel": "Channel",
+    "channels": {
+      "production": "Production",
+      "test": "Test"
+    },
+    "channelHint": {
+      "production": "Stable releases",
+      "test": "Preview of the next release"
+    },
+    "installed": "Installed",
+    "installedVersion": "Installed version",
+    "check": "Check for updates",
+    "latestOn": "Latest on {{channel}}",
+    "available": "Update available",
+    "switchAvailable": "Other channel",
+    "upToDate": "Up to date",
+    "updateNow": "Update now",
+    "switchTo": "Switch to {{channel}}",
+    "confirmText": "The server makes a database backup, builds the new version, migrates the database and restarts. This takes a few minutes; everyone stays signed in. If the new version does not start, the previous version is put back automatically.",
+    "downgradeWarning": "Going back from test to production can mean an older version. Database changes from the test version are not undone; if production does not start, the backup made before the switch is restored.",
+    "confirm": "Start",
+    "lastRun": "Last update",
+    "state": {
+      "idle": "Idle",
+      "queued": "Waiting to start",
+      "fetching": "Downloading",
+      "building": "Building",
+      "backup": "Backing up",
+      "installing": "Installing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "rolling-back": "Rolling back",
+      "rolled-back": "Rolled back"
+    },
+    "howItWorks": "Updates come from the GitHub repository: the production channel follows the production branch, the test channel the test branch. The helper service network-simulator-update installs them with root rights; the web interface itself never does."
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back",
+    "intro": "Design networks, configure virtual Cisco-style routers and switches from the CLI, and watch packets travel to see at a glance what works.",
+    "roadmap": "Roadmap",
+    "roadmapText": "The platform is built in four phases.",
+    "phase": "Phase {{n}}",
+    "phases": {
+      "foundation": {
+        "title": "Foundation",
+        "text": "Users, mail server, encrypted backups, updates from the UI, English and Dutch."
+      },
+      "engine": {
+        "title": "Simulation engine",
+        "text": "Topology editor with drag and drop, links, and animated traffic flows."
+      },
+      "devices": {
+        "title": "Devices & CLI",
+        "text": "Cisco-style routers and switches (incl. Catalyst 6500): VLANs, static routing, OSPF, BGP, ACLs. Windows clients and web/file servers."
+      },
+      "lessons": {
+        "title": "Lessons & troubleshooting",
+        "text": "Guided labs and broken networks to fix, with automatic checks."
+      }
+    },
+    "system": "System status",
+    "mail": "Mail server",
+    "backup": "Backup",
+    "notConfigured": "Not configured",
+    "noBackup": "No backup yet",
+    "ok": "OK",
+    "action": "Action needed"
+  },
+  "soon": {
+    "title": "Coming in phase {{phase}}",
+    "text": "This part of the simulator is on the roadmap. The foundation it builds on is ready.",
+    "topologies": "Draw networks and watch the traffic flow.",
+    "devices": "Routers, switches, clients and servers to place in a topology.",
+    "console": "The command line of every device, in your browser.",
+    "lessons": "Guided labs and troubleshooting assignments."
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Administrators manage the platform, instructors prepare labs, students practise.",
+    "add": "Add user",
+    "edit": "Edit user",
+    "username": "Username",
+    "displayName": "Name",
+    "email": "E-mail",
+    "role": "Role",
+    "language": "Language",
+    "lastLogin": "Last sign-in",
+    "disabled": "Disabled",
+    "disabledHint": "A disabled user cannot sign in.",
+    "mustChange": "One-time password",
+    "resetPassword": "Reset password",
+    "empty": "No users yet",
+    "confirmDelete": "Delete user {{name}}?",
+    "otpHint": "The user gets a one-time password and chooses their own password at the first sign-in.",
+    "otpTitle": "One-time password",
+    "otpText": "Give this password to {{name}}. It is shown only once.",
+    "roleHint": {
+      "admin": "Full access, including administration.",
+      "instructor": "Prepares lessons and follows students (phase 4).",
+      "student": "Works on labs and topologies."
+    }
+  },
+  "mail": {
+    "title": "Mail server",
+    "subtitle": "Your own SMTP server for notifications such as failed backups.",
+    "server": "SMTP server",
+    "enabled": "Send e-mail",
+    "enabledHint": "Turn off to stop all outgoing mail.",
+    "host": "Server",
+    "port": "Port",
+    "security": "Encryption",
+    "securityOptions": {
+      "starttls": "STARTTLS (required)",
+      "tls": "TLS (implicit)",
+      "none": "None"
+    },
+    "securityHint": {
+      "starttls": "Usually port 587. The connection must be upgraded to TLS, otherwise nothing is sent.",
+      "tls": "Usually port 465. Encrypted from the first byte.",
+      "none": "Only for a relay on the local network."
+    },
+    "minTls": "Minimum TLS version",
+    "verifyCert": "Verify the server certificate",
+    "verifyCertHint": "Turn off only for a server with a self-signed certificate.",
+    "insecure": "Without encryption the password and the messages travel in plain text.",
+    "authentication": "Authentication",
+    "authMethod": "Method",
+    "noAuth": "No authentication",
+    "username": "Username",
+    "password": "Password",
+    "sender": "Sender",
+    "fromName": "Sender name",
+    "fromAddress": "Sender address",
+    "replyTo": "Reply-to (optional)",
+    "dkim": "DKIM signing (optional)",
+    "dkimHint": "Sign messages with your own DKIM key so they pass SPF/DKIM/DMARC checks. Publish the public key as selector._domainkey.domain.",
+    "dkimDomain": "Domain",
+    "dkimSelector": "Selector",
+    "dkimKey": "Private key (PEM)",
+    "test": "Test",
+    "testHint": "Sends a test message with the settings in the form, also before you save them.",
+    "testTo": "Send to",
+    "sendTest": "Send test message",
+    "testSent": "Test message sent to {{to}}."
+  },
+  "backup": {
+    "title": "Backup & restore",
+    "subtitle": "Encrypted full and incremental backups to FTP, FTPS or SCP, and restore from any of them.",
+    "tabs": {
+      "locations": "Locations",
+      "schedule": "Schedule & encryption",
+      "history": "History",
+      "restore": "Restore"
+    },
+    "addLocation": "Add location",
+    "editLocation": "Edit location",
+    "name": "Name",
+    "type": "Type",
+    "types": {
+      "scp": "SCP / SFTP",
+      "ftps": "FTPS",
+      "ftp": "FTP"
+    },
+    "host": "Server",
+    "port": "Port",
+    "username": "Username",
+    "password": "Password",
+    "authType": "Sign in with",
+    "authPassword": "Password",
+    "authKey": "SSH key",
+    "privateKey": "Private key",
+    "privateKeyHint": "OpenSSH or PEM format. Add the public key to ~/.ssh/authorized_keys of the backup user.",
+    "keyPassphrase": "Key passphrase (optional)",
+    "path": "Folder",
+    "pathHint": "Relative to the home folder of the user, or an absolute path.",
+    "implicitTls": "Implicit TLS",
+    "implicitTlsHint": "Port 990. Off means explicit TLS (AUTH TLS) on port 21.",
+    "verifyCert": "Verify the certificate",
+    "verifyCertHint": "Off for a self-signed certificate: you then trust its fingerprint after the test.",
+    "ftpWarning": "Plain FTP sends the password unencrypted. The backup itself is always encrypted. Use SCP or FTPS when you can.",
+    "enabled": "Use for scheduled backups",
+    "enabledHint": "Off pauses scheduled backups to this location; restoring still works.",
+    "pinned": "Trusted fingerprint:",
+    "test": "Test connection",
+    "testOk": "Connection works: a test file was written, read and deleted.",
+    "testOkExisting": "Connection works. Existing Network Simulator backups were found in this folder.",
+    "fingerprintUnknown": "First connection: compare this fingerprint with the server and trust it.",
+    "fingerprintChanged": "The fingerprint of the server has changed! Only trust it if you know why (for example a new server).",
+    "trust": "Trust this fingerprint",
+    "trusted": "Fingerprint trusted. Test again to check the connection.",
+    "noLocations": "No backup locations yet",
+    "noLocationsText": "Add a NAS, server or hosting account to store encrypted backups.",
+    "confirmDelete": "Delete location {{name}}? The backups at the location itself stay.",
+    "paused": "Paused",
+    "backupNow": "Back up now",
+    "fullNow": "Full backup",
+    "started": "Backup to {{name}} started. Follow it under History.",
+    "schedule": "Schedule",
+    "scheduleEnabled": "Scheduled backups",
+    "scheduleHint": "Runs to every enabled location. Missed backups run when the server is back.",
+    "every": "Every",
+    "daily": "Day",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "startTime": "From",
+    "fullEvery": "New full backup every (days)",
+    "fullEveryHint": "In between, backups are incremental.",
+    "keep": "Full backups to keep",
+    "keepHint": "Older ones are deleted with their incrementals.",
+    "retentionSummary": "You can go back about {{weeks}} week(s).",
+    "needPassphrase": "Set a backup passphrase first: without it no backup runs.",
+    "encryption": "Encryption",
+    "encryptionText": "Every backup is compressed and encrypted (AES-256-GCM) before it leaves the server. The key is protected by your passphrase.",
+    "storePassphrase": "Store the passphrase in your password manager. Without it nobody can restore the backups, including you.",
+    "passphrase": "Backup passphrase",
+    "currentPassphrase": "Current passphrase",
+    "newPassphrase": "New passphrase",
+    "passphraseRules": "At least 12 characters.",
+    "setPassphrase": "Set passphrase",
+    "changePassphrase": "Change passphrase",
+    "passSaved": "Passphrase saved.",
+    "passUnreachable": "Passphrase saved, but these locations could not be updated: {{names}}. Their existing backups still use the old passphrase.",
+    "when": "When",
+    "location": "Location",
+    "kind": "Type",
+    "kinds": {
+      "full": "Full",
+      "incremental": "Incremental"
+    },
+    "result": "Result",
+    "size": "Size",
+    "uploaded": "{{size}} uploaded",
+    "status": {
+      "running": "Running",
+      "success": "Completed",
+      "failed": "Failed"
+    },
+    "trigger": {
+      "manual": "Manual",
+      "schedule": "Scheduled"
+    },
+    "noRuns": "No backups yet",
+    "restoreFrom": "Restore from",
+    "chooseLocation": "Choose a location",
+    "otherLocation": "Another location (new server)…",
+    "otherHint": "Restore from a location that is not set up on this server, for example after installing a new server.",
+    "passphraseOptional": "Leave empty to use the passphrase set on this server.",
+    "passphraseOther": "The passphrase of the server that made the backups.",
+    "findBackups": "Find backups",
+    "available": "{{count}} backup(s) found",
+    "version": "Version",
+    "restoreThis": "Restore this backup",
+    "confirmRestoreTitle": "Restore backup",
+    "confirmRestoreText": "All current data is replaced by the backup of {{date}}. The server restarts and everyone is signed out. The current state is kept until the next restore and is put back automatically if the restore fails.",
+    "typeRestore": "Type RESTORE to confirm",
+    "restoreOf": "Backup of {{date}}",
+    "restoreSignIn": "Sign in again with an account from the backup.",
+    "restoreState": {
+      "downloading": "Downloading and verifying",
+      "staged": "Verified. The server restarts to apply it…",
+      "applying": "Applying the backup…",
+      "completed": "Restore completed",
+      "failed": "Restore failed",
+      "rolled-back": "Restore failed: the previous state was put back"
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Who did what and when.",
+    "when": "When",
+    "who": "Who",
+    "action": "Action",
+    "detail": "Details"
+  },
+  "errors": {
+    "generic": "Something went wrong ({{code}}).",
+    "validation": "Some fields are not valid.",
+    "server": {
+      "error": "Server error. Check the server log."
+    },
+    "auth": {
+      "invalidCredentials": "Wrong username or password.",
+      "required": "Please sign in.",
+      "forbidden": "You do not have access to this.",
+      "passwordChangeRequired": "Choose a new password first."
+    },
+    "password": {
+      "tooShort": "The password must be at least 10 characters.",
+      "tooSimple": "Use more than only letters or only digits.",
+      "currentWrong": "The current password is wrong.",
+      "same": "The new password is the same as the old one."
+    },
+    "users": {
+      "exists": "This username is already taken.",
+      "cannotDemoteSelf": "You cannot disable yourself or take away your own administrator role.",
+      "cannotDeleteSelf": "You cannot delete yourself."
+    },
+    "mail": {
+      "testFailed": "The test message could not be sent.",
+      "notConfigured": "The mail server is not set up."
+    },
+    "backup": {
+      "connectionFailed": "Could not connect.",
+      "fingerprintChanged": "The fingerprint of the server has changed. Trust the new fingerprint on the location first.",
+      "fingerprintUnknown": "The fingerprint of the server is not trusted yet. Test the location and trust it.",
+      "noPassphrase": "Set a backup passphrase first.",
+      "wrongPassphrase": "The passphrase is wrong for the backups at this location.",
+      "noRepository": "No Network Simulator backups were found in this folder.",
+      "alreadyRunning": "A backup is already running.",
+      "locationNotFound": "Location not found.",
+      "restoreRunning": "A restore is already running.",
+      "newerVersion": "This backup was made by a newer version. Update this server first.",
+      "notFound": "Backup not found.",
+      "corrupt": "The backup is damaged.",
+      "checksumMismatch": "The backup is damaged (checksum mismatch).",
+      "unknownFormat": "Unknown backup format."
+    },
+    "updates": {
+      "repoNotFound": "The update repository was not found. For a private repository, set NETSIM_UPDATE_TOKEN.",
+      "github": "GitHub could not be reached.",
+      "invalidCommit": "Invalid version.",
+      "running": "An update is already running."
+    }
+  }
+}

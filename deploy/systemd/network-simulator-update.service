@@ -1,0 +1,14 @@
+[Unit]
+Description=Network Simulator updater (installs a version requested in the web interface)
+Documentation=https://github.com/rhisijmuiden/network-simulator
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as root: it builds releases in /opt and restarts the service. It only
+# accepts a branch name and a commit id from the request file.
+ExecStart=/usr/local/sbin/network-simulator-update
+TimeoutStartSec=45min
+PrivateTmp=true
+Environment=HOME=/root NPM_CONFIG_UPDATE_NOTIFIER=false

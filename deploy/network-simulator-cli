@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Runs the Network Simulator CLI as the service user with the server settings.
+#   network-simulator migrate | create-admin <user> | reset-admin [user] | version
+set -euo pipefail
+[[ $EUID -eq 0 ]] || { echo "run as root (sudo)" >&2; exit 1; }
+set -a
+# shellcheck disable=SC1091
+. /etc/network-simulator/server.env
+set +a
+cd /opt/network-simulator/current
+exec setpriv --reuid=netsim --regid=netsim --init-groups -- /usr/bin/node server/dist/cli.js "$@"
