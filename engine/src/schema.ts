@@ -76,7 +76,7 @@ export const DeviceSchema = z.object({
             z.object({
               id,
               action: z.enum(["permit", "deny"]),
-              protocol: z.enum(["ip", "icmp", "tcp", "udp"]),
+              protocol: z.enum(["ip", "icmp", "tcp", "udp", "esp"]),
               src: addressMatch,
               dst: addressMatch,
               srcPort: portMatch.optional(),

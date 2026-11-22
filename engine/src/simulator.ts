@@ -8,6 +8,7 @@ import { resolveDhcp, tcpPorts, udpPorts, type Lease, type LeaseFailure } from "
 import { computeStp, type StpBridge, type StpPort } from "./stp.js";
 import "./protocols/ospf.js";
 import "./protocols/bgp.js";
+import { ipsecConfig, ipsecTunnels, protectingEntry, shouldHaveBeenEncrypted, tunnelKey, type Tunnel } from "./protocols/ipsec.js";
 
 export type DropReason =
   | "no-link"
@@ -25,6 +26,8 @@ export type DropReason =
   | "arp-failed"
   | "ttl-expired"
   | "not-routing"
+  | "ipsec-no-sa"
+  | "ipsec-plaintext"
   | "storm";
 
 export type SimEvent =
@@ -158,6 +161,10 @@ export class Simulator {
   readonly topology: Topology;
   /** DHCP results per host interface id. */
   readonly leases: Map<string, Lease | LeaseFailure>;
+  /** IPsec tunnels (one per crypto map entry and end), with their state. */
+  readonly tunnels: Tunnel[];
+  /** Packets encrypted and decrypted per tunnel, keyed by `tunnelKey`. Kept until clearIpsecCounters(). */
+  readonly ipsecCounters = new Map<string, { encaps: number; decaps: number }>();
 
   constructor(topology: Topology, opts: SimOptions = {}) {
     this.opts = { hopTime: 1, arpTimeout: 20, replyTimeout: 40, maxFrames: 3000, ...opts };
@@ -168,6 +175,7 @@ export class Simulator {
     this.net = new NetworkIndex(topology);
     this.stp = computeStp(this.net);
     this.routes = buildRoutingTables(this.net);
+    this.tunnels = topology.devices.some((d) => ipsecConfig(d)) ? ipsecTunnels(this.net, this.routes) : [];
     this.reset();
   }
 
@@ -179,7 +187,8 @@ export class Simulator {
 
   // ---------------------------------------------------------------- operations
 
-  ping(sourceId: string, target: string, opts: { count?: number; ttl?: number } = {}): OperationRun<PingResult> {
+  /** `source`: address to send from (an own address of the device, as `ping ... source` on IOS). */
+  ping(sourceId: string, target: string, opts: { count?: number; ttl?: number; source?: string } = {}): OperationRun<PingResult> {
     const count = Math.max(1, Math.min(10, opts.count ?? 4));
     const result: PingResult = { op: "ping", source: sourceId, target, sent: 0, received: 0, replies: [] };
     return this.operation(result, (flow, src, dst) => {
@@ -212,7 +221,7 @@ export class Simulator {
               ...this.takeDrop(flow),
             });
         });
-        const err = this.originate(src, { kind: "ipv4", src: 0, dst, ttl: opts.ttl ?? this.defaultTtl(src), flow, protocol: "icmp", icmp: { type: "echo-request", id: flow, seq: mySeq } });
+        const err = this.originate(src, { kind: "ipv4", src: (opts.source && parseIp(opts.source)) || 0, dst, ttl: opts.ttl ?? this.defaultTtl(src), flow, protocol: "icmp", icmp: { type: "echo-request", id: flow, seq: mySeq } });
         if (err) finish({ seq: mySeq, status: "unreachable", reason: err, at: src.id });
       };
       next();
@@ -348,6 +357,17 @@ export class Simulator {
     return s ? [...s.macTable.values()].sort((a, b) => a.vlan - b.vlan || a.mac.localeCompare(b.mac)) : [];
   }
 
+  clearIpsecCounters(): void {
+    this.ipsecCounters.clear();
+  }
+
+  private count(t: Tunnel, field: "encaps" | "decaps") {
+    const key = tunnelKey(t);
+    const c = this.ipsecCounters.get(key) ?? { encaps: 0, decaps: 0 };
+    c[field]++;
+    this.ipsecCounters.set(key, c);
+  }
+
   stpPort(ifaceId: string): StpPort | undefined {
     return this.stp.ports.get(ifaceId);
   }
@@ -400,6 +420,7 @@ export class Simulator {
       return { ...base, ...ip, kind: p.icmp.type, detail };
     }
     if (p.tcp) return { ...base, ...ip, kind: "tcp", detail: `${p.tcp.flags.toUpperCase()} ${p.tcp.srcPort}→${p.tcp.dstPort}` };
+    if (p.esp) return { ...base, ...ip, kind: "esp", detail: `SPI 0x${p.esp.spi.toString(16).toUpperCase()} (${formatIp(p.esp.inner.src)}→${formatIp(p.esp.inner.dst)})` };
     return { ...base, ...ip, kind: "udp", detail: p.udp ? `${p.udp.srcPort}→${p.udp.dstPort}` : undefined };
   }
 
@@ -511,9 +532,41 @@ export class Simulator {
       this.icmpError(device, iface, p, "unreachable", "admin");
       return;
     }
+    if (this.tunnels.length) {
+      if (p.esp && this.net.isLocalAddress(device, p.dst)) return this.decapsulate(device, iface, p, frame);
+      if (!p.esp && shouldHaveBeenEncrypted(device, iface, p)) return this.drop(device, "ipsec-plaintext", frame, iface);
+    }
     if (this.net.isLocalAddress(device, p.dst)) return this.localDeliver(device, iface, p, frame);
     if (!device.ipRouting) return this.drop(device, "not-routing", frame, iface);
     this.forward(device, iface, p, frame);
+  }
+
+  /** ESP for this router: find the SA, then handle the inner packet as if it arrived on the crypto interface. */
+  private decapsulate(device: Device, iface: Interface, p: Ipv4Packet, frame: Frame) {
+    const esp = p.esp!;
+    const t = this.tunnels.find((x) => x.device.id === device.id && x.phase === 2 && x.peer === p.src && x.local === p.dst && x.spiIn === esp.spi);
+    if (!t) return this.drop(device, "ipsec-no-sa", frame, iface, formatIp(p.src));
+    this.count(t, "decaps");
+    const inner = esp.inner;
+    const f: Frame = { ...frame, id: ++this.frameId, payload: inner };
+    if (this.net.isLocalAddress(device, inner.dst)) return this.localDeliver(device, iface, inner, f);
+    if (!device.ipRouting) return this.drop(device, "not-routing", f, iface);
+    this.forward(device, iface, inner, f);
+  }
+
+  /** Output with IPsec: traffic that a crypto map protects leaves as ESP towards the peer. */
+  private send(device: Device, iface: Interface, nextHop: number, packet: Ipv4Packet, forwarded: boolean) {
+    const entry = this.tunnels.length && !packet.esp ? protectingEntry(device, iface, packet) : undefined;
+    if (!entry) return this.output(device, iface, nextHop, packet, forwarded);
+    const t = this.tunnels.find((x) => x.device.id === device.id && x.iface.id === iface.id && x.entry.map === entry.map && x.entry.seq === entry.seq);
+    if (!t || t.phase < 2 || t.peer === undefined) return this.dropPacket(device, "ipsec-no-sa", packet, iface, t?.entry.peer ?? entry.peer ?? "?");
+    const outer: Ipv4Packet = { kind: "ipv4", src: t.local, dst: t.peer, ttl: this.defaultTtl(device), flow: packet.flow, protocol: "esp", esp: { spi: t.spiOut, inner: packet } };
+    this.count(t, "encaps");
+    const r = resolveRoute(this.net, device, this.routes.get(device.id) ?? [], t.peer);
+    if (!r) return this.dropPacket(device, "no-route", outer, iface, formatIp(t.peer));
+    const deny = runFilters({ device, iface: r.iface, direction: "out", packet: outer });
+    if (deny) return this.dropPacket(device, "acl-out", outer, r.iface, deny.rule);
+    this.output(device, r.iface, r.nextHop, outer, forwarded);
   }
 
   private forward(device: Device, inIface: Interface, p: Ipv4Packet, frame: Frame) {
@@ -536,7 +589,7 @@ export class Simulator {
       this.icmpError(device, inIface, p, "unreachable", "admin");
       return;
     }
-    this.output(device, r.iface, r.nextHop, pkt, true);
+    this.send(device, r.iface, r.nextHop, pkt, true);
   }
 
   /** Sends a packet that this device creates. Returns a reason when it cannot leave the device. */
@@ -556,7 +609,7 @@ export class Simulator {
       return reason;
     }
     const src = packet.src || parseIp(r.iface.ip?.address ?? "") || 0;
-    this.output(device, r.iface, r.nextHop, { ...packet, src }, false);
+    this.send(device, r.iface, r.nextHop, { ...packet, src }, false);
     return undefined;
   }
 
@@ -637,3 +690,4 @@ export class Simulator {
     this.originate(device, { kind: "ipv4", src, dst: original.src, ttl: this.defaultTtl(device), flow: original.flow, protocol: "icmp", icmp: { type, code, original } });
   }
 }
+

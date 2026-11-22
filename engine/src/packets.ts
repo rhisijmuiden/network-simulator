@@ -35,10 +35,12 @@ export interface Ipv4Packet {
   ttl: number;
   /** Identifies one simulated operation (ping, traceroute ...) so results can be matched. */
   flow: number;
-  protocol: "icmp" | "tcp" | "udp";
+  protocol: "icmp" | "tcp" | "udp" | "esp";
   icmp?: IcmpMessage;
   tcp?: TcpSegment;
   udp?: UdpDatagram;
+  /** IPsec ESP: the encrypted original packet (tunnel mode). */
+  esp?: { spi: number; inner: Ipv4Packet };
 }
 
 export interface Frame {
@@ -62,7 +64,8 @@ export type FrameKind =
   | "time-exceeded"
   | "unreachable"
   | "tcp"
-  | "udp";
+  | "udp"
+  | "esp";
 
 export interface FrameInfo {
   id: number;

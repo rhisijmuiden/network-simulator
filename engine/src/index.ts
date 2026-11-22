@@ -17,3 +17,4 @@ export * from "./protocols/ospf.js";
 export * from "./protocols/bgp.js";
 export * from "./services.js";
 export * from "./cli/windows.js";
+export * from "./protocols/ipsec.js";

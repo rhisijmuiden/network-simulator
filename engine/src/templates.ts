@@ -1,8 +1,9 @@
 import { createDevice, createSubinterface, newId } from "./catalog.js";
 import { emptyTopology, type Device, type Interface, type Topology } from "./model.js";
+import type { IpsecConfig } from "./protocols/ipsec.js";
 
 /** Starter topologies offered when creating a new one. Names are i18n keys `templates.<id>`. */
-export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant", "ospf", "bgp", "services"] as const;
+export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant", "ospf", "bgp", "services", "ipsec"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 function builder() {
@@ -177,6 +178,42 @@ export function createFromTemplate(id: TemplateId): Topology {
         dhcp: { enabled: true, pools: [{ id: newId("p"), name: "OFFICE", network: "10.1.0.0", prefix: 24, start: "10.1.0.100", end: "10.1.0.199", gateway: "10.1.0.1", dns: "10.2.0.10" }] },
         files: { enabled: true, shares: [{ id: newId("s"), name: "Public", files: ["readme.txt", "network-plan.pdf"] }] },
       };
+      return b.t;
+    }
+    case "ipsec": {
+      // Two sites joined by a site-to-site VPN over an internet router that knows only public addresses.
+      const b = builder()
+        .add("router", "R1", 260, 160)
+        .add("router", "ISP", 480, 100)
+        .add("router", "R2", 700, 160)
+        .host("pc", "PC1", 160, 340, "10.1.0.10", "10.1.0.1")
+        .host("server", "SRV1", 800, 340, "10.2.0.10", "10.2.0.1")
+        .cfg("R1", "GigabitEthernet0/0", { ip: { address: "10.1.0.1", prefix: 24 } })
+        .cfg("R1", "GigabitEthernet0/1", { ip: { address: "203.0.113.1", prefix: 30 } })
+        .cfg("ISP", "GigabitEthernet0/1", { ip: { address: "203.0.113.2", prefix: 30 } })
+        .cfg("ISP", "GigabitEthernet0/2", { ip: { address: "198.51.100.1", prefix: 30 } })
+        .cfg("R2", "GigabitEthernet0/1", { ip: { address: "198.51.100.2", prefix: 30 } })
+        .cfg("R2", "GigabitEthernet0/0", { ip: { address: "10.2.0.1", prefix: 24 } })
+        .link("PC1", "Ethernet0", "R1", "GigabitEthernet0/0")
+        .link("R1", "GigabitEthernet0/1", "ISP", "GigabitEthernet0/1")
+        .link("ISP", "GigabitEthernet0/2", "R2", "GigabitEthernet0/1")
+        .link("R2", "GigabitEthernet0/0", "SRV1", "Ethernet0");
+      const site = (name: string, gw: string, peer: string, local: string, remote: string) => {
+        const d = b.device(name);
+        d.staticRoutes.push({ id: newId("r"), network: "0.0.0.0", prefix: 0, nextHop: gw, distance: 1 });
+        const any = (address: string) => ({ address, wildcard: "0.0.0.255" });
+        d.acls.push({ name: "110", rules: [{ id: newId("a"), action: "permit", protocol: "ip", src: any(local), dst: any(remote) }] });
+        const cfg: IpsecConfig = {
+          policies: [{ priority: 10, encryption: "aes 256", hash: "sha256", authentication: "pre-share", group: 14, lifetime: 86400 }],
+          keys: [{ key: "Lab-Secret1", address: peer }],
+          transformSets: [{ name: "TS", transforms: ["esp-aes 256", "esp-sha-hmac"], mode: "tunnel" }],
+          maps: [{ map: "VPN", seq: 10, peer, transformSets: ["TS"], acl: "110" }],
+          interfaces: { [d.interfaces.find((i) => i.name === "GigabitEthernet0/1")!.id]: "VPN" },
+        };
+        d.protocols.ipsec = cfg;
+      };
+      site("R1", "203.0.113.2", "198.51.100.2", "10.1.0.0", "10.2.0.0");
+      site("R2", "198.51.100.1", "203.0.113.1", "10.2.0.0", "10.1.0.0");
       return b.t;
     }
   }

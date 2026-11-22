@@ -22,7 +22,7 @@ function compressVlans(list: number[]): string {
   return out.join(",");
 }
 
-const WELL_KNOWN: Record<number, string> = { 21: "ftp", 22: "22", 23: "telnet", 25: "smtp", 53: "domain", 80: "www", 110: "pop3", 443: "443" };
+const WELL_KNOWN: Record<number, string> = { 21: "ftp", 22: "22", 23: "telnet", 25: "smtp", 53: "domain", 80: "www", 110: "pop3", 443: "443", 500: "isakmp", 4500: "non500-isakmp" };
 
 export function formatAddress(m: AddressMatch): string {
   if (m.wildcard === "255.255.255.255") return "any";

@@ -7,6 +7,7 @@ import { complete, helpFor, matchCommand, pattern, type CommandDef } from "./par
 import * as show from "./show.js";
 import { cliExtensions, type CliExtension } from "./extensions.js";
 import "../protocols/cli.js";
+import "../protocols/ipsec-cli.js";
 
 export type IosMode = "user" | "priv" | "config" | "if" | "if-range" | "subif" | "vlan" | "acl-ext" | "acl-std" | "line" | "router";
 
@@ -163,7 +164,7 @@ function forIfaces(c: Ctx, fn: (i: Interface) => void) {
 
 // ------------------------------------------------------------------ ACL rule parsing
 
-const PORT_NAMES: Record<string, number> = { www: 80, http: 80, ftp: 21, "ftp-data": 20, ssh: 22, telnet: 23, smtp: 25, domain: 53, pop3: 110, https: 443, bootps: 67, bootpc: 68, tftp: 69, snmp: 161, ntp: 123 };
+const PORT_NAMES: Record<string, number> = { www: 80, http: 80, ftp: 21, "ftp-data": 20, ssh: 22, telnet: 23, smtp: 25, domain: 53, pop3: 110, https: 443, bootps: 67, bootpc: 68, tftp: 69, snmp: 161, ntp: 123, isakmp: 500, "non500-isakmp": 4500 };
 
 function parseAddr(words: string[]): { m: AddressMatch; used: number } | null {
   const w = words[0]?.toLowerCase();
@@ -208,7 +209,7 @@ export function parseAclRule(text: string, standard: boolean): AclRule | string 
     return { id: newId("a"), action, protocol: "ip", src: src.m, dst: any };
   }
   const protocol = w.shift()?.toLowerCase();
-  if (protocol !== "ip" && protocol !== "icmp" && protocol !== "tcp" && protocol !== "udp") return "% Invalid protocol: use ip, icmp, tcp or udp.";
+  if (protocol !== "ip" && protocol !== "icmp" && protocol !== "tcp" && protocol !== "udp" && protocol !== "esp") return "% Invalid protocol: use ip, icmp, tcp, udp or esp.";
   const src = parseAddr(w);
   if (!src) return "% Invalid source address.";
   w.splice(0, src.used);
@@ -245,13 +246,19 @@ function ensureAcl(d: Device, name: string, type: "standard" | "extended") {
 
 // ------------------------------------------------------------------ exec commands
 
-function pingCmd(c: Ctx, target: string) {
-  const r = c.sim.ping(c.d.id, target, { count: 5 });
+function pingCmd(c: Ctx, target: string, source?: string) {
+  let from: string | undefined;
+  if (source) {
+    const i = parseIp(source) === null ? findIface(c.d, source) : c.d.interfaces.find((x) => x.ip?.address === source);
+    if (!i?.ip) return void c.out.push(`% Invalid source address- IP address not on any of our up interfaces`);
+    from = i.ip.address;
+  }
+  const r = c.sim.ping(c.d.id, target, { count: 5, source: from });
   c.run = r;
   const marks = r.result.replies.map((x) => (x.status === "reply" ? "!" : x.status === "timeout" ? "." : x.status === "ttl-expired" ? "&" : x.code === "admin" ? "A" : "U"));
   const times = r.result.replies.filter((x) => x.time !== undefined).map((x) => x.time!);
   const pct = Math.round((r.result.received / r.result.sent) * 100);
-  c.out.push("Type escape sequence to abort.", `Sending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:`, marks.join(""));
+  c.out.push("Type escape sequence to abort.", `Sending 5, 100-byte ICMP Echos to ${target}, timeout is 2 seconds:`, ...(from ? [`Packet sent with a source address of ${from} `] : []), marks.join(""));
   c.out.push(
     `Success rate is ${pct} percent (${r.result.received}/${r.result.sent})${times.length ? `, round-trip min/avg/max = ${Math.min(...times)}/${Math.round(times.reduce((a, b) => a + b, 0) / times.length)}/${Math.max(...times)} ms` : ""}`,
   );
@@ -305,6 +312,7 @@ function execCommands(priv: boolean): CommandDef<Ctx>[] {
   const list: CommandDef<Ctx>[] = [
     ...showCommands(priv),
     cmd("ping <ip:target>", (c, a) => pingCmd(c, a.target!)),
+    cmd("ping <ip:target> source <word:src>", (c, a) => pingCmd(c, a.target!, a.src)),
     cmd("traceroute <ip:target>", (c, a) => traceCmd(c, a.target!)),
     cmd("exit", (c) => (c.s.mode = "user")),
     cmd("logout", (c) => (c.s.mode = "user")),
@@ -767,7 +775,7 @@ const PROMPTS: Record<string, string> = {
  */
 export class IosSession {
   mode: IosMode | string = "user";
-  ctx: { ifaces: string[]; vlan?: number; acl?: string; process?: number } = { ifaces: [] };
+  ctx: { ifaces: string[]; vlan?: number; acl?: string; process?: number; name?: string; seq?: number } = { ifaces: [] };
   history: string[] = [];
   lastLine = "";
   private readonly started = Date.now();

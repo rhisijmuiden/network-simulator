@@ -108,7 +108,7 @@ export function AclEditor({ device, onChange }: { device: Device; onChange: (fn:
                         })
                       }
                     >
-                      {["ip", "icmp", "tcp", "udp"].map((p) => (
+                      {["ip", "icmp", "tcp", "udp", "esp"].map((p) => (
                         <option key={p}>{p}</option>
                       ))}
                     </SmallSelect>
