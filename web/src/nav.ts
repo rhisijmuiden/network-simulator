@@ -13,7 +13,7 @@ export const navigation: NavGroup[] = [
       { path: "/topologies", label: "nav.topologies", icon: Network },
       { path: "/devices", label: "nav.devices", icon: Server },
       { path: "/console", label: "nav.console", icon: TerminalSquare },
-      { path: "/lessons", label: "nav.lessons", icon: GraduationCap, phase: 4 },
+      { path: "/lessons", label: "nav.lessons", icon: GraduationCap },
     ],
   },
   {

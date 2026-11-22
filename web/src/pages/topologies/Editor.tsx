@@ -11,6 +11,7 @@ import { ConsoleWindow } from "../../editor/Console";
 import { CommitInput } from "../../editor/fields";
 import { useTopologyHistory } from "../../editor/history";
 import { Inspector } from "../../editor/Inspector";
+import { LessonPanel } from "../../editor/LessonPanel";
 import { addDevice, addLink, logicKey, removeDevice, removeLink } from "../../editor/ops";
 import { Palette } from "../../editor/Palette";
 import { usePlaybackInstance } from "../../editor/playback";
@@ -223,6 +224,7 @@ function EditorView({ initial }: { initial: Loaded }) {
           <Download size={17} />
         </ToolButton>
       </div>
+      <LessonPanel topologyId={initial.id} topology={topology} />
       <div className="relative flex min-h-0 flex-1">
         <Palette onAdd={(m) => add(m)} />
         <div className="flex min-w-0 flex-1 flex-col">

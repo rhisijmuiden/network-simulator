@@ -9,7 +9,10 @@ import Backup from "./pages/admin/Backup";
 import MailSettings from "./pages/admin/Mail";
 import Updates from "./pages/admin/Updates";
 import Users from "./pages/admin/Users";
-import ComingSoon from "./pages/ComingSoon";
+import LessonDetail from "./pages/lessons/Detail";
+import LessonList from "./pages/lessons/List";
+import LessonProgress from "./pages/lessons/Progress";
+import ScenarioEditor from "./pages/lessons/ScenarioEditor";
 import Dashboard from "./pages/Dashboard";
 import ConsoleHelp from "./pages/lab/ConsoleHelp";
 import DeviceLibrary from "./pages/lab/Devices";
@@ -73,7 +76,11 @@ export default function App() {
           <Route path="topologies/:id" element={<TopologyEditor />} />
           <Route path="devices" element={<DeviceLibrary />} />
           <Route path="console" element={<ConsoleHelp />} />
-          <Route path="lessons" element={<ComingSoon feature="lessons" phase={4} />} />
+          <Route path="lessons" element={<LessonList />} />
+          <Route path="lessons/new" element={<ScenarioEditor />} />
+          <Route path="lessons/edit/:id" element={<ScenarioEditor />} />
+          <Route path="lessons/progress" element={<LessonProgress />} />
+          <Route path="lessons/:key" element={<LessonDetail />} />
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<RequireAdmin />}>
             <Route path="users" element={<Users />} />

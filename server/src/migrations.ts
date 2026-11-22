@@ -95,4 +95,55 @@ export const migrations: { version: number; name: string; up: string }[] = [
       CREATE INDEX topologies_owner_idx ON topologies(owner_id, updated_at DESC);
     `,
   },
+  {
+    version: 3,
+    name: "lessons",
+    up: `
+      CREATE TABLE scenarios (
+        id serial PRIMARY KEY,
+        owner_id integer REFERENCES users(id) ON DELETE SET NULL,
+        title text NOT NULL,
+        briefing text NOT NULL DEFAULT '',
+        hints jsonb NOT NULL DEFAULT '[]',
+        level smallint NOT NULL DEFAULT 1 CHECK (level BETWEEN 1 AND 3),
+        data jsonb NOT NULL,
+        checks jsonb NOT NULL DEFAULT '[]',
+        published boolean NOT NULL DEFAULT false,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      -- scenario_key: 'b:<key>' for a built-in scenario, 'c:<id>' for a scenario from the scenarios table.
+      CREATE TABLE assignments (
+        id serial PRIMARY KEY,
+        scenario_key text NOT NULL,
+        created_by integer REFERENCES users(id) ON DELETE SET NULL,
+        note text NOT NULL DEFAULT '',
+        due_at timestamptz,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE TABLE assignment_users (
+        assignment_id integer NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+        user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        PRIMARY KEY (assignment_id, user_id)
+      );
+      CREATE INDEX assignment_users_user_idx ON assignment_users(user_id);
+
+      CREATE TABLE attempts (
+        id serial PRIMARY KEY,
+        scenario_key text NOT NULL,
+        user_id integer NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        topology_id integer REFERENCES topologies(id) ON DELETE SET NULL,
+        status text NOT NULL DEFAULT 'started' CHECK (status IN ('started', 'completed')),
+        hints_used integer NOT NULL DEFAULT 0,
+        checks_run integer NOT NULL DEFAULT 0,
+        last_results jsonb NOT NULL DEFAULT '[]',
+        started_at timestamptz NOT NULL DEFAULT now(),
+        last_checked_at timestamptz,
+        completed_at timestamptz
+      );
+      CREATE UNIQUE INDEX attempts_user_scenario_idx ON attempts(user_id, scenario_key);
+      CREATE INDEX attempts_topology_idx ON attempts(topology_id);
+    `,
+  },
 ];
