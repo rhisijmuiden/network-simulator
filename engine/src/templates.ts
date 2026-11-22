@@ -2,7 +2,7 @@ import { createDevice, createSubinterface, newId } from "./catalog.js";
 import { emptyTopology, type Device, type Interface, type Topology } from "./model.js";
 
 /** Starter topologies offered when creating a new one. Names are i18n keys `templates.<id>`. */
-export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant"] as const;
+export const TEMPLATE_IDS = ["blank", "switched", "routed", "vlans", "redundant", "ospf", "bgp"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 function builder() {
@@ -107,5 +107,54 @@ export function createFromTemplate(id: TemplateId): Topology {
         .link("SW2", "GigabitEthernet0/2", "SW3", "GigabitEthernet0/2")
         .link("PC1", "Ethernet0", "SW2", "FastEthernet0/1")
         .link("PC2", "Ethernet0", "SW3", "FastEthernet0/1").t;
+    case "ospf": {
+      // Three routers in a triangle, OSPF area 0 everywhere: shut a link and watch traffic reroute.
+      const b = builder()
+        .add("router", "R1", 260, 140)
+        .add("router", "R2", 560, 140)
+        .add("router", "R3", 410, 330)
+        .host("pc", "PC1", 100, 140, "10.1.0.10", "10.1.0.1")
+        .host("server", "SRV1", 720, 140, "10.2.0.10", "10.2.0.1")
+        .host("pc", "PC3", 410, 500, "10.3.0.10", "10.3.0.1");
+      const ip = (d: string, i: string, address: string, prefix: number) => b.cfg(d, `GigabitEthernet${i}`, { ip: { address, prefix } });
+      ip("R1", "0/0", "10.1.0.1", 24);
+      ip("R2", "0/0", "10.2.0.1", 24);
+      ip("R3", "0/0", "10.3.0.1", 24);
+      ip("R1", "0/1", "10.0.12.1", 30);
+      ip("R2", "0/1", "10.0.12.2", 30);
+      ip("R2", "0/2", "10.0.23.1", 30);
+      ip("R3", "0/2", "10.0.23.2", 30);
+      ip("R1", "0/2", "10.0.13.1", 30);
+      ip("R3", "0/1", "10.0.13.2", 30);
+      b.link("PC1", "Ethernet0", "R1", "GigabitEthernet0/0")
+        .link("SRV1", "Ethernet0", "R2", "GigabitEthernet0/0")
+        .link("PC3", "Ethernet0", "R3", "GigabitEthernet0/0")
+        .link("R1", "GigabitEthernet0/1", "R2", "GigabitEthernet0/1")
+        .link("R2", "GigabitEthernet0/2", "R3", "GigabitEthernet0/2")
+        .link("R1", "GigabitEthernet0/2", "R3", "GigabitEthernet0/1");
+      for (const [name, id] of [["R1", "1.1.1.1"], ["R2", "2.2.2.2"], ["R3", "3.3.3.3"]] as const) {
+        const d = b.device(name);
+        d.protocols.ospf = { processId: 1, routerId: id, networks: [{ address: "10.0.0.0", wildcard: "0.255.255.255", area: 0 }], passive: [d.interfaces[0]!.id], costs: {} };
+      }
+      return b.t;
+    }
+    case "bgp": {
+      // Two autonomous systems joined by eBGP; each announces its own LAN.
+      const b = builder()
+        .add("router", "R1", 300, 160)
+        .add("router", "R2", 560, 160)
+        .host("pc", "PC1", 160, 340, "10.1.0.10", "10.1.0.1")
+        .host("server", "SRV1", 700, 340, "10.2.0.10", "10.2.0.1")
+        .cfg("R1", "GigabitEthernet0/0", { ip: { address: "10.1.0.1", prefix: 24 } })
+        .cfg("R1", "GigabitEthernet0/1", { ip: { address: "192.0.2.1", prefix: 30 } })
+        .cfg("R2", "GigabitEthernet0/1", { ip: { address: "192.0.2.2", prefix: 30 } })
+        .cfg("R2", "GigabitEthernet0/0", { ip: { address: "10.2.0.1", prefix: 24 } })
+        .link("PC1", "Ethernet0", "R1", "GigabitEthernet0/0")
+        .link("R1", "GigabitEthernet0/1", "R2", "GigabitEthernet0/1")
+        .link("R2", "GigabitEthernet0/0", "SRV1", "Ethernet0");
+      b.device("R1").protocols.bgp = { asn: 65001, neighbors: [{ address: "192.0.2.2", remoteAs: 65002 }], networks: [{ network: "10.1.0.0", prefix: 24 }] };
+      b.device("R2").protocols.bgp = { asn: 65002, neighbors: [{ address: "192.0.2.1", remoteAs: 65001 }], networks: [{ network: "10.2.0.0", prefix: 24 }] };
+      return b.t;
+    }
   }
 }

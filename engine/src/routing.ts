@@ -13,6 +13,8 @@ export interface RouteEntry {
   protocol: RouteProtocol;
   distance: number;
   metric: number;
+  /** Code shown in `show ip route` when it differs from the protocol's own, for example "O IA" or "O*E2". */
+  code?: string;
 }
 
 /**
@@ -25,9 +27,15 @@ export interface RoutingProtocol {
   /** Cisco code letter shown in the routing table, for example "O" for OSPF. */
   code: string;
   distance: number;
-  compute(ctx: { net: NetworkIndex; connected: Map<string, RouteEntry[]> }): Map<string, RouteEntry[]>;
+  /**
+   * `routes` holds what is known so far (connected, static and the protocols registered
+   * earlier), so that BGP can check whether a neighbour or next hop is reachable.
+   */
+  compute(ctx: { net: NetworkIndex; connected: Map<string, RouteEntry[]>; routes: Map<string, RouteEntry[]> }): Map<string, RouteEntry[]>;
   /** Lines for `show running-config`, from the device's `protocols[id]` settings. */
-  runningConfig?(config: unknown): string[];
+  runningConfig?(config: unknown, device: Device): string[];
+  /** Extra lines inside an interface block of `show running-config` (for example `ip ospf cost`). */
+  interfaceConfig?(config: unknown, device: Device, iface: Interface): string[];
 }
 
 const protocols: RoutingProtocol[] = [];
@@ -114,7 +122,7 @@ export function buildRoutingTables(net: NetworkIndex): Map<string, RouteEntry[]>
   const all = new Map<string, RouteEntry[]>();
   for (const d of net.devices.values()) all.set(d.id, [...connected.get(d.id)!, ...staticRoutes(net, d, connected.get(d.id)!)]);
   for (const p of protocols) {
-    for (const [id, routes] of p.compute({ net, connected })) all.get(id)?.push(...routes);
+    for (const [id, routes] of p.compute({ net, connected, routes: all })) all.get(id)?.push(...routes);
   }
   const tables = new Map<string, RouteEntry[]>();
   for (const [id, routes] of all) {

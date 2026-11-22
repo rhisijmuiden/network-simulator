@@ -29,7 +29,7 @@ export function StateView({ device, sim }: { device: Device; sim: Simulator }) {
             head={["", t("state.network"), t("state.via")]}
             empty={t("state.none")}
             rows={sim.routingTable(device.id).map((r) => [
-              codes[r.protocol] ?? r.protocol,
+              r.code ?? codes[r.protocol] ?? r.protocol,
               `${formatIp(r.network)}/${r.prefix}`,
               r.nextHop !== undefined ? `${formatIp(r.nextHop)}${r.protocol !== "connected" ? ` [${r.distance}/${r.metric}]` : ""}` : ifName(r.iface),
             ])}

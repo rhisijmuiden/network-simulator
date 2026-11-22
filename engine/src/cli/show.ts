@@ -75,6 +75,7 @@ export function runningConfig(d: Device): string[] {
     }
     if (i.ip) out.push(` ip address ${i.ip.address} ${prefixToMask(i.ip.prefix)}`);
     else if (!isSwitchport(i) || !isSwitch(d)) out.push(" no ip address");
+    for (const [id, cfg] of Object.entries(d.protocols)) out.push(...(routingProtocols().find((x) => x.id === id)?.interfaceConfig?.(cfg, d, i) ?? []));
     if (i.aclIn) out.push(` ip access-group ${i.aclIn} in`);
     if (i.aclOut) out.push(` ip access-group ${i.aclOut} out`);
     if (!i.enabled) out.push(" shutdown");
@@ -82,7 +83,7 @@ export function runningConfig(d: Device): string[] {
   }
   for (const [id, cfg] of Object.entries(d.protocols)) {
     const p = routingProtocols().find((x) => x.id === id);
-    const lines = p?.runningConfig?.(cfg);
+    const lines = p?.runningConfig?.(cfg, d);
     if (lines?.length) out.push(...lines, "!");
   }
   if (d.defaultGateway) out.push(`ip default-gateway ${d.defaultGateway}`);
@@ -150,7 +151,8 @@ export function ipRoute(d: Device, sim: Simulator): string[] {
   const ifn = (id?: string) => d.interfaces.find((i) => i.id === id)?.name ?? "";
   for (const r of table) {
     let code = codes[r.protocol] ?? "?";
-    if (r.protocol === "gateway") code = "S*";
+    if (r.code) code = r.code;
+    else if (r.protocol === "gateway") code = "S*";
     else if (r.prefix === 0) code += "*";
     const net = `${formatIp(r.network)}/${r.prefix}`;
     if (r.protocol === "connected" || r.protocol === "local") out.push(`${pad(code, 9)}${net} is directly connected, ${ifn(r.iface)}`);

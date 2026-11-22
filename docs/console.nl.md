@@ -54,6 +54,42 @@ Show-commando's: `show running-config`, `show ip interface brief`, `show interfa
 Commando's zonder effect in de simulator (wachtwoorden, banners, `line vty`, `speed`,
 `duplex`) worden geaccepteerd, zodat configuraties uit echte labs geplakt kunnen worden.
 
+## OSPF en BGP
+
+Beide draaien in hun geconvergeerde toestand: zodra de configuratie compleet is, zijn
+de routeringstabellen zoals ze na het uitwisselen van de protocollen zouden zijn.
+
+**OSPF** (`router ospf <proces-id>`)
+
+- `network <adres> <wildcard> area <id>` zet OSPF aan op de interfaces die erbij
+  passen; `router-id`, `passive-interface <interface>`, `default-information originate`
+  (vraagt een statische standaardroute op die router).
+- Interface: `ip ospf cost <1-65535>`. De standaardkosten gaan uit van 100 Mb/s.
+- Buren ontstaan over een gedeeld segment (ook via switches en VLAN's) als gebied,
+  subnet en masker gelijk zijn, geen van beide kanten passief is en de router-ID's
+  verschillen. Loopbacks worden als /32 aangekondigd.
+- Routes: `O`, `O IA` (ander gebied) en `O*E2` (standaardroute).
+- Show: `show ip ospf neighbor`, `show ip ospf interface brief`, `show ip ospf` (toont
+  ook routers op het segment die geen buur worden, en waarom), `show ip protocols`,
+  `show ip route ospf`.
+
+**BGP** (`router bgp <as>`)
+
+- `neighbor <adres> remote-as <as>`, `neighbor <adres> next-hop-self`,
+  `network <adres> mask <masker>` (het netwerk moet met precies dat masker in de
+  routeringstabel staan), `bgp router-id`.
+- Een sessie komt op als beide kanten naar elkaar wijzen met de juiste AS-nummers en
+  elkaar kunnen bereiken; eBGP-buren moeten direct verbonden zijn.
+- Paden volgen de gebruikelijke regels: controle op lussen in het AS-pad, geen
+  doorgeven van iBGP naar iBGP, next hop ongewijzigd naar iBGP-buren tenzij
+  `next-hop-self`, beste pad op kortste AS-pad en daarna eBGP boven iBGP.
+  eBGP-routes hebben afstand 20, iBGP 200.
+- Show: `show ip bgp summary`, `show ip bgp`, `show ip route bgp`.
+
+Het zijpaneel (tabblad Routes) toont de OSPF-buren en BGP-sessies van een apparaat, met
+de reden als er een niet opkomt. De startlabs "OSPF-driehoek" en "Twee netwerken met
+BGP" staan klaar om mee te experimenteren.
+
 ## Uitbreiden
 
 Routeringsprotocollen voegen modi en commando's toe met `registerCliExtension` in
