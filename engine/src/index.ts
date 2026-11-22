@@ -18,3 +18,5 @@ export * from "./protocols/bgp.js";
 export * from "./services.js";
 export * from "./cli/windows.js";
 export * from "./protocols/ipsec.js";
+export * from "./lessons.js";
+export * from "./scenarios.js";

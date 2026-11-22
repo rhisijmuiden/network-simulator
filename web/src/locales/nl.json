@@ -148,14 +148,6 @@
     "ok": "OK",
     "action": "Actie nodig"
   },
-  "soon": {
-    "title": "Komt in fase {{phase}}",
-    "text": "Dit deel van de simulator staat op de roadmap. Het fundament waarop het bouwt is klaar.",
-    "topologies": "Teken netwerken en zie het verkeer stromen.",
-    "devices": "Routers, switches, clients en servers om in een topologie te plaatsen.",
-    "console": "De opdrachtregel van elk apparaat, in je browser.",
-    "lessons": "Begeleide labs en troubleshootingopdrachten."
-  },
   "users": {
     "title": "Gebruikers",
     "subtitle": "Beheerders beheren het platform, docenten bereiden labs voor, studenten oefenen.",
@@ -409,6 +401,12 @@
       "duplicateId": "De topologie bevat dubbele id's.",
       "badLink": "Een kabel verwijst naar een poort die niet bestaat.",
       "portInUse": "Een poort heeft meer dan één kabel."
+    },
+    "lessons": {
+      "notFound": "Dit scenario of deze poging bestaat niet, of je hebt er geen toegang toe.",
+      "noStudents": "Er zijn geen (actieve) studenten om het aan toe te wijzen.",
+      "invalidChecks": "Een van de doelen is niet goed ingevuld.",
+      "noTopology": "Kies een starttopologie."
     }
   },
   "catalog": {
@@ -943,6 +941,169 @@
     "ports": {
       "title": "Andere open poorten",
       "hint": "Extra TCP-poorten, bijvoorbeeld 8080. De diensten hierboven openen hun eigen poorten."
+    }
+  },
+  "lessons": {
+    "title": "Lessen & labs",
+    "subtitle": "Troubleshooting-opdrachten die je werk automatisch controleren.",
+    "newScenario": "Nieuw scenario",
+    "filter": {
+      "label": "Toon",
+      "all": "Alle scenario's",
+      "assigned": "Aan mij toegewezen",
+      "open": "Niet afgerond",
+      "done": "Afgerond"
+    },
+    "empty": "Geen scenario's hier.",
+    "draft": "Concept",
+    "goals_one": "{{count}} doel",
+    "goals_other": "{{count}} doelen",
+    "by": "door {{name}}",
+    "dueAt": "Inleveren {{date}}",
+    "assigned": "Aan jou toegewezen",
+    "level": {
+      "1": "Basis",
+      "2": "Gevorderd",
+      "3": "Expert"
+    },
+    "status": {
+      "new": "Niet begonnen",
+      "completed": "Afgerond",
+      "started": "{{passed}} van {{total}} doelen"
+    },
+    "checks": {
+      "ping": {
+        "reach": "{{from}} kan {{to}} pingen",
+        "fail": "{{from}} kan {{to}} niet pingen"
+      },
+      "tcp": {
+        "open": "{{from}} kan verbinden met {{to}} op TCP-poort {{port}}",
+        "blocked": "TCP-poort {{port}} op {{to}} is geblokkeerd voor {{from}}"
+      },
+      "route": "{{device}} heeft een route naar {{network}}",
+      "ospf": "{{device}} en {{neighbor}} zijn OSPF-buren",
+      "bgp": "De BGP-sessie van {{device}} naar {{peer}} is opgebouwd",
+      "ipsec": "De IPsec-tunnels van {{device}} zijn actief",
+      "dhcp": "{{device}} krijgt een adres via DHCP",
+      "noErrors": "De diagnose toont geen fouten"
+    },
+    "checkTypes": {
+      "ping": "Ping",
+      "tcp": "TCP-verbinding",
+      "route": "Route aanwezig",
+      "ospf": "OSPF-buren",
+      "bgp": "BGP-sessie",
+      "ipsec": "IPsec-tunnel actief",
+      "dhcp": "DHCP-lease",
+      "noErrors": "Geen diagnosefouten"
+    },
+    "why": {
+      "noDevice": "Er is geen apparaat met de naam {{detail}}.",
+      "noTarget": "{{detail}} heeft geen adres.",
+      "noReply": "Geen antwoord van {{detail}}.",
+      "reached": "{{detail}} antwoordt nog.",
+      "closed": "{{detail}}: de server antwoordt, maar de poort is dicht.",
+      "open": "{{detail}} is nog bereikbaar.",
+      "filtered": "{{detail}} wordt onderweg geblokkeerd.",
+      "noRoute": "Geen route naar {{detail}}.",
+      "noNeighbor": "Geen adjacency met {{detail}}.",
+      "notEstablished": "De sessie met {{detail}} is niet opgebouwd.",
+      "tunnelDown": "Een tunnel van {{detail}} is down.",
+      "noLease": "{{detail}} heeft geen DHCP-lease.",
+      "errors": "De diagnose toont {{detail}} fouten."
+    },
+    "restartConfirm": "Dit scenario opnieuw beginnen? Je wijzigingen aan de topologie gaan verloren; gebruikte hints blijven meetellen.",
+    "continue": "Verder",
+    "start": "Beginnen",
+    "briefing": "Opdracht",
+    "goalsTitle": "Doelen",
+    "goalsHint": "De doelen beschrijven het werkende netwerk. Elke oplossing die ze haalt, telt.",
+    "yourAttempt": "Jouw poging",
+    "started": "Begonnen",
+    "checksRun": "Keer gecontroleerd",
+    "hintsUsed": "Hints gebruikt",
+    "completedAt": "Afgerond",
+    "restart": "Opnieuw beginnen",
+    "hintsTitle": "Hints",
+    "hintsInEditor_one": "Er is {{count}} hint beschikbaar in de editor. Elke hint die je opent, ziet je docent.",
+    "hintsInEditor_other": "Er zijn {{count}} hints beschikbaar in de editor. Elke hint die je opent, ziet je docent.",
+    "deleteTitle": "Scenario verwijderen",
+    "deleteText": "\"{{title}}\" verwijderen? De toewijzingen ervan worden ook verwijderd. Kopieën die studenten maakten, blijven in hun topologieën staan.",
+    "assign": {
+      "button": "Toewijzen",
+      "title": "Toewijzen aan studenten",
+      "done_one": "Toegewezen aan {{count}} student.",
+      "done_other": "Toegewezen aan {{count}} studenten.",
+      "all": "Alle studenten",
+      "some": "Gekozen studenten",
+      "noStudents": "Er zijn nog geen studentaccounts.",
+      "due": "Inleverdatum",
+      "note": "Notitie voor de studenten"
+    },
+    "progress": {
+      "title": "Voortgang",
+      "subtitle": "Hoe studenten hun scenario's maken.",
+      "students": "Studenten",
+      "noStudents": "Nog geen studenten",
+      "noStudentsText": "Maak gebruikers met de rol student aan bij Gebruikers.",
+      "nothingYet": "Nog geen enkele student is aan een scenario begonnen of heeft er een gekregen.",
+      "student": "Student",
+      "hints_one": "{{count}} hint",
+      "hints_other": "{{count}} hints",
+      "notStarted": "Niet begonnen",
+      "assignments": "Toewijzingen",
+      "noAssignments": "Nog geen toewijzingen. Open een scenario en kies Toewijzen.",
+      "scenario": "Scenario",
+      "by": "Gegeven door",
+      "copy": "Kopiëren naar mijn topologieën",
+      "lastCheck": "Laatst gecontroleerd",
+      "copyHint": "De kopie opent in de editor. De topologie van de student zelf verandert niet."
+    },
+    "editor": {
+      "editTitle": "Scenario bewerken",
+      "subtitle": "Bouw eerst het netwerk met de fouten erin als topologie en beschrijf daarna het doel.",
+      "about": "Scenario",
+      "titleField": "Titel",
+      "briefingHint": "Wat de student ziet: de situatie en wat moet werken. Verklap de fout niet.",
+      "level": "Niveau",
+      "replaceStart": "Starttopologie vervangen",
+      "start": "Starttopologie",
+      "startHint": "Bij opslaan wordt er een kopie gemaakt; latere wijzigingen aan die topologie veranderen het scenario niet.",
+      "keepStart": "De huidige houden",
+      "published": "Gepubliceerd",
+      "publishedHint": "Gepubliceerde scenario's zijn zichtbaar voor alle studenten. Niet-gepubliceerde alleen voor studenten aan wie je ze toewijst.",
+      "hintsHint": "Studenten openen de hints één voor één; jij ziet hoeveel ze er gebruikten.",
+      "hint": "Hint {{n}}",
+      "addHint": "Hint toevoegen",
+      "try": "Doelen testen",
+      "checksHint": "Doelen worden automatisch gecontroleerd in de kopie van de student. Apparaten worden op naam gezocht. Op de starttopologie horen de doelen te falen; na de oplossing horen ze te slagen.",
+      "pickStart": "Kies een starttopologie om apparaten uit te kiezen.",
+      "checkType": "Soort doel",
+      "from": "Van",
+      "to": "Naar",
+      "port": "Poort",
+      "expect": "Verwacht",
+      "expectReach": "krijgt antwoord",
+      "expectFail": "krijgt geen antwoord",
+      "expectOpen": "is open",
+      "expectBlocked": "is geblokkeerd",
+      "device": "Apparaat",
+      "network": "Netwerk",
+      "neighbor": "Buur",
+      "peer": "Peeradres",
+      "addCheck": "Doel toevoegen",
+      "tryResult": "Resultaat op de gekozen topologie"
+    },
+    "panel": {
+      "label": "Les",
+      "score": "{{passed}}/{{total}} doelen",
+      "check": "Controleer mijn werk",
+      "hint_one": "Hint (nog {{count}})",
+      "hint_other": "Hint (nog {{count}})",
+      "noHints": "Geen hints meer",
+      "collapse": "Les verbergen",
+      "expand": "Les tonen",
+      "done": "Goed gedaan: alle doelen zijn gehaald."
     }
   }
 }

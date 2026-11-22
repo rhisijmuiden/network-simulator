@@ -2,7 +2,8 @@
 
 - Product: web-based network simulation and learning platform (own engine, no real
   Cisco images). Roadmap in README.md; phases 1 (foundation), 2 (engine and
-  topology editor) and 3 (CLI, OSPF/BGP, hosts and servers, IPsec) are done.
+  topology editor), 3 (CLI, OSPF/BGP, hosts and servers, IPsec) and 4 (lessons:
+  `engine/src/lessons.ts`, `engine/src/scenarios.ts`, `server/src/routes/lessons.ts`) are done.
 - Workspaces: `engine/` (simulation, pure TypeScript, built to dist and used by
   the server; the web app imports its source via a Vite alias), `server/`, `web/`.
   The engine is the single source of truth for the topology model

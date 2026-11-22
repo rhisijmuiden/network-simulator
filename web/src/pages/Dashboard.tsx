@@ -8,7 +8,7 @@ import { useApi, useDateFormat } from "../hooks";
 import { NetworkBackdrop } from "../components/NetworkBackdrop";
 
 /** Highest finished phase. */
-const DONE = 2;
+const DONE = 4;
 
 const roadmap: { phase: number; key: string; icon: LucideIcon }[] = [
   { phase: 1, key: "foundation", icon: CheckCircle2 },

@@ -148,14 +148,6 @@
     "ok": "OK",
     "action": "Action needed"
   },
-  "soon": {
-    "title": "Coming in phase {{phase}}",
-    "text": "This part of the simulator is on the roadmap. The foundation it builds on is ready.",
-    "topologies": "Draw networks and watch the traffic flow.",
-    "devices": "Routers, switches, clients and servers to place in a topology.",
-    "console": "The command line of every device, in your browser.",
-    "lessons": "Guided labs and troubleshooting assignments."
-  },
   "users": {
     "title": "Users",
     "subtitle": "Administrators manage the platform, instructors prepare labs, students practise.",
@@ -409,6 +401,12 @@
       "duplicateId": "The topology contains duplicate ids.",
       "badLink": "A cable points to a port that does not exist.",
       "portInUse": "A port has more than one cable."
+    },
+    "lessons": {
+      "notFound": "This scenario or attempt does not exist, or you have no access to it.",
+      "noStudents": "There are no (active) students to assign it to.",
+      "invalidChecks": "One of the goals is not filled in correctly.",
+      "noTopology": "Choose a start topology."
     }
   },
   "catalog": {
@@ -943,6 +941,169 @@
     "ports": {
       "title": "Other open ports",
       "hint": "Extra TCP ports, for example 8080. The services above open their own ports."
+    }
+  },
+  "lessons": {
+    "title": "Lessons & labs",
+    "subtitle": "Troubleshooting assignments that check your work automatically.",
+    "newScenario": "New scenario",
+    "filter": {
+      "label": "Show",
+      "all": "All scenarios",
+      "assigned": "Assigned to me",
+      "open": "Not finished",
+      "done": "Finished"
+    },
+    "empty": "No scenarios here.",
+    "draft": "Draft",
+    "goals_one": "{{count}} goal",
+    "goals_other": "{{count}} goals",
+    "by": "by {{name}}",
+    "dueAt": "Due {{date}}",
+    "assigned": "Assigned to you",
+    "level": {
+      "1": "Basics",
+      "2": "Intermediate",
+      "3": "Advanced"
+    },
+    "status": {
+      "new": "Not started",
+      "completed": "Completed",
+      "started": "{{passed}} of {{total}} goals"
+    },
+    "checks": {
+      "ping": {
+        "reach": "{{from}} can ping {{to}}",
+        "fail": "{{from}} can not ping {{to}}"
+      },
+      "tcp": {
+        "open": "{{from}} can connect to {{to}} on TCP port {{port}}",
+        "blocked": "TCP port {{port}} on {{to}} is blocked for {{from}}"
+      },
+      "route": "{{device}} has a route to {{network}}",
+      "ospf": "{{device}} and {{neighbor}} are OSPF neighbours",
+      "bgp": "The BGP session from {{device}} to {{peer}} is established",
+      "ipsec": "The IPsec tunnels of {{device}} are up",
+      "dhcp": "{{device}} gets an address from DHCP",
+      "noErrors": "The diagnostics show no errors"
+    },
+    "checkTypes": {
+      "ping": "Ping",
+      "tcp": "TCP connection",
+      "route": "Route present",
+      "ospf": "OSPF neighbours",
+      "bgp": "BGP session",
+      "ipsec": "IPsec tunnel up",
+      "dhcp": "DHCP lease",
+      "noErrors": "No diagnostic errors"
+    },
+    "why": {
+      "noDevice": "There is no device called {{detail}}.",
+      "noTarget": "{{detail}} has no address.",
+      "noReply": "No reply from {{detail}}.",
+      "reached": "{{detail}} still answers.",
+      "closed": "{{detail}}: the server answers, but the port is closed.",
+      "open": "{{detail}} is still reachable.",
+      "filtered": "{{detail}} is blocked on the way.",
+      "noRoute": "No route to {{detail}}.",
+      "noNeighbor": "No adjacency with {{detail}}.",
+      "notEstablished": "The session with {{detail}} is not established.",
+      "tunnelDown": "A tunnel of {{detail}} is down.",
+      "noLease": "{{detail}} has no DHCP lease.",
+      "errors": "The diagnostics show {{detail}} errors."
+    },
+    "restartConfirm": "Start this scenario again? Your changes to the topology are lost; hints you used stay counted.",
+    "continue": "Continue",
+    "start": "Start",
+    "briefing": "Briefing",
+    "goalsTitle": "Goals",
+    "goalsHint": "The goals describe the working network. Any solution that reaches them counts.",
+    "yourAttempt": "Your attempt",
+    "started": "Started",
+    "checksRun": "Times checked",
+    "hintsUsed": "Hints used",
+    "completedAt": "Completed",
+    "restart": "Start again",
+    "hintsTitle": "Hints",
+    "hintsInEditor_one": "{{count}} hint is available in the editor. Each hint you open is shown to your teacher.",
+    "hintsInEditor_other": "{{count}} hints are available in the editor. Each hint you open is shown to your teacher.",
+    "deleteTitle": "Delete scenario",
+    "deleteText": "Delete \"{{title}}\"? Assignments for it are removed as well. Copies that students made stay in their topologies.",
+    "assign": {
+      "button": "Assign",
+      "title": "Assign to students",
+      "done_one": "Assigned to {{count}} student.",
+      "done_other": "Assigned to {{count}} students.",
+      "all": "All students",
+      "some": "Selected students",
+      "noStudents": "There are no student accounts yet.",
+      "due": "Due date",
+      "note": "Note for the students"
+    },
+    "progress": {
+      "title": "Progress",
+      "subtitle": "How students are doing on their scenarios.",
+      "students": "Students",
+      "noStudents": "No students yet",
+      "noStudentsText": "Create users with the role student in Users.",
+      "nothingYet": "No student has started or been given a scenario yet.",
+      "student": "Student",
+      "hints_one": "{{count}} hint",
+      "hints_other": "{{count}} hints",
+      "notStarted": "Not started",
+      "assignments": "Assignments",
+      "noAssignments": "No assignments yet. Open a scenario and choose Assign.",
+      "scenario": "Scenario",
+      "by": "Given by",
+      "copy": "Copy to my topologies",
+      "lastCheck": "Last checked",
+      "copyHint": "The copy opens in the editor. The student's own topology is not changed."
+    },
+    "editor": {
+      "editTitle": "Edit scenario",
+      "subtitle": "Build the network with the faults in it as a topology first, then describe the goal.",
+      "about": "Scenario",
+      "titleField": "Title",
+      "briefingHint": "What the student sees: the situation and what must work. Do not give the fault away.",
+      "level": "Level",
+      "replaceStart": "Replace start topology",
+      "start": "Start topology",
+      "startHint": "A copy is taken when you save; later changes to that topology do not change the scenario.",
+      "keepStart": "Keep the current one",
+      "published": "Published",
+      "publishedHint": "Published scenarios are visible to all students. Unpublished ones only to students you assign them to.",
+      "hintsHint": "Students open the hints one at a time; you see how many they used.",
+      "hint": "Hint {{n}}",
+      "addHint": "Add hint",
+      "try": "Test the goals",
+      "checksHint": "Goals are checked automatically in the student's copy. Devices are matched by name. On the start topology the goals should fail; once fixed, they should pass.",
+      "pickStart": "Choose a start topology to pick devices from.",
+      "checkType": "Type of goal",
+      "from": "From",
+      "to": "To",
+      "port": "Port",
+      "expect": "Expected",
+      "expectReach": "gets a reply",
+      "expectFail": "gets no reply",
+      "expectOpen": "is open",
+      "expectBlocked": "is blocked",
+      "device": "Device",
+      "network": "Network",
+      "neighbor": "Neighbour",
+      "peer": "Peer address",
+      "addCheck": "Add goal",
+      "tryResult": "Result on the selected topology"
+    },
+    "panel": {
+      "label": "Lesson",
+      "score": "{{passed}}/{{total}} goals",
+      "check": "Check my work",
+      "hint_one": "Hint ({{count}} left)",
+      "hint_other": "Hint ({{count}} left)",
+      "noHints": "No hints left",
+      "collapse": "Hide lesson",
+      "expand": "Show lesson",
+      "done": "Well done: every goal is met."
     }
   }
 }
