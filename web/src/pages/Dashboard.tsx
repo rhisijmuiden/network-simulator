@@ -7,6 +7,9 @@ import { Badge, Card, PageHeader } from "../components/ui";
 import { useApi, useDateFormat } from "../hooks";
 import { NetworkBackdrop } from "../components/NetworkBackdrop";
 
+/** Highest finished phase. */
+const DONE = 2;
+
 const roadmap: { phase: number; key: string; icon: LucideIcon }[] = [
   { phase: 1, key: "foundation", icon: CheckCircle2 },
   { phase: 2, key: "engine", icon: Network },
@@ -89,10 +92,10 @@ export default function Dashboard() {
           {roadmap.map((r) => (
             <div key={r.key} className="rounded-lg border border-line bg-raised p-5">
               <div className="flex items-center justify-between">
-                <span className={`flex h-10 w-10 items-center justify-center rounded-md ${r.phase === 1 ? "bg-ok/12 text-ok" : "bg-koraal/12 text-accent-text"}`}>
+                <span className={`flex h-10 w-10 items-center justify-center rounded-md ${r.phase <= DONE ? "bg-ok/12 text-ok" : "bg-koraal/12 text-accent-text"}`}>
                   <r.icon size={20} />
                 </span>
-                <Badge tone={r.phase === 1 ? "ok" : "neutral"}>{t("dashboard.phase", { n: r.phase })}</Badge>
+                <Badge tone={r.phase <= DONE ? "ok" : "neutral"}>{t("dashboard.phase", { n: r.phase })}</Badge>
               </div>
               <h3 className="mt-4 font-bold">{t(`dashboard.phases.${r.key}.title`)}</h3>
               <p className="mt-1 text-sm text-muted">{t(`dashboard.phases.${r.key}.text`)}</p>

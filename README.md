@@ -7,19 +7,38 @@ works and what does not.
 
 [Nederlands](README.nl.md)
 
-> **Status:** phase 1 of 4, the foundation. The simulator itself follows in the
-> next phases (see the roadmap).
+> **Status:** phase 2 of 4. The foundation and the simulation engine with its
+> topology editor are done; device CLIs and lessons follow (see the roadmap).
 
 ## Roadmap
 
 | Phase | What | Status |
 | --- | --- | --- |
 | 1 | Foundation: users, mail server, encrypted backups, updates from the UI, English and Dutch | Done |
-| 2 | Simulation engine, visual topology editor, animated traffic flows | Planned |
+| 2 | Simulation engine, visual topology editor, animated traffic flows | Done |
 | 3 | Cisco-style router and switch CLI built from scratch (incl. Catalyst 6500 style): VLANs, trunks, static routing, OSPF, BGP, ACLs, later IPsec. Windows workstations and web/file servers | Planned |
 | 4 | Lessons and troubleshooting assignments with automatic checks | Planned |
 
 No real Cisco images are used: every device is simulated by the platform's own engine.
+
+## What phase 2 contains
+
+- **Topology editor**: drag routers, switches, a multilayer switch, PCs and servers
+  onto the canvas, draw cables port to port, undo/redo, autosave, import/export as
+  a file, and starter labs (one switch, two routers, VLANs, redundant switches).
+- **Own simulation engine** (`engine/`, TypeScript, also used by the server):
+  Ethernet switching with MAC learning, VLANs, access and trunk ports (802.1Q,
+  native VLAN), spanning tree (root bridge election, blocked ports), IPv4 with ARP,
+  routed ports, router-on-a-stick subinterfaces, VLAN interfaces (SVI), static
+  routes, extended ACLs (IP/ICMP/TCP/UDP with ports) and a hook for OSPF and BGP.
+- **Tests with animation**: ping, traceroute and TCP connect. Every frame moves as
+  a coloured dot over the cables; drops show a red cross on the exact port with the
+  reason ("no route to 10.2.0.10", "VLAN 20 does not exist on this switch").
+- **Device tables** like `show` commands: interfaces, routing table, ARP table, MAC
+  address table and spanning tree roles.
+- **Configuration check** that finds common mistakes before you send a packet:
+  duplicate IPs, gateway outside the subnet, native VLAN mismatch and more.
+  See [docs/topologies.md](docs/topologies.md).
 
 ## What phase 1 contains
 

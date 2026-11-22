@@ -6,7 +6,11 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { "@brand": fileURLToPath(new URL("../brand", import.meta.url)) },
+    alias: {
+      "@brand": fileURLToPath(new URL("../brand", import.meta.url)),
+      // The engine is used from source so edits show up instantly in the dev server.
+      "@netsim/engine": fileURLToPath(new URL("../engine/src/index.ts", import.meta.url)),
+    },
   },
   server: {
     port: 5173,
