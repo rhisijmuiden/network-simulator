@@ -89,6 +89,8 @@ export interface AclRule {
 
 export interface Acl {
   name: string;
+  /** Standard lists match only the source address. Extended when absent. */
+  type?: "standard" | "extended";
   rules: AclRule[];
 }
 

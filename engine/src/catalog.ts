@@ -8,7 +8,9 @@ export interface DeviceModel {
   label: string;
   /** Prefix for new device names, such as R, SW, PC. */
   namePrefix: string;
-  ports: { prefix: string; slots: string[]; speed: number }[];
+  ports: { prefix: string; slots: string[]; speed: number; module?: string }[];
+  /** Line shown by `show version`. */
+  platform: string;
 }
 
 const range = (from: number, to: number, fmt: (n: number) => string) =>
@@ -21,6 +23,7 @@ export const DEVICE_MODELS: DeviceModel[] = [
     label: "router",
     namePrefix: "R",
     ports: [{ prefix: "GigabitEthernet", slots: range(0, 3, (n) => `0/${n}`), speed: 1000 }],
+    platform: "NS-R4G integrated services router, 4 gigabit Ethernet interfaces",
   },
   {
     id: "switch24",
@@ -31,6 +34,7 @@ export const DEVICE_MODELS: DeviceModel[] = [
       { prefix: "FastEthernet", slots: range(1, 24, (n) => `0/${n}`), speed: 100 },
       { prefix: "GigabitEthernet", slots: range(1, 2, (n) => `0/${n}`), speed: 1000 },
     ],
+    platform: "NS-S24 access switch, 24 fast Ethernet + 2 gigabit uplinks",
   },
   {
     id: "l3switch24",
@@ -41,9 +45,23 @@ export const DEVICE_MODELS: DeviceModel[] = [
       { prefix: "GigabitEthernet", slots: range(1, 24, (n) => `1/0/${n}`), speed: 1000 },
       { prefix: "TenGigabitEthernet", slots: range(1, 2, (n) => `1/1/${n}`), speed: 10000 },
     ],
+    platform: "NS-L3-24 multilayer switch, 24 gigabit + 2 ten-gigabit ports",
   },
-  { id: "pc", kind: "pc", label: "pc", namePrefix: "PC", ports: [{ prefix: "Ethernet", slots: ["0"], speed: 1000 }] },
-  { id: "server", kind: "server", label: "server", namePrefix: "SRV", ports: [{ prefix: "Ethernet", slots: ["0", "1"], speed: 1000 }] },
+  {
+    // Modular chassis in the style of a Catalyst 6500: line cards per slot, supervisor in slot 5.
+    id: "chassis6500",
+    kind: "l3switch",
+    label: "chassis6500",
+    namePrefix: "CORE",
+    ports: [
+      { prefix: "GigabitEthernet", slots: range(1, 48, (n) => `1/${n}`), speed: 1000, module: "48-port 10/100/1000 Ethernet line card" },
+      { prefix: "TenGigabitEthernet", slots: range(1, 8, (n) => `2/${n}`), speed: 10000, module: "8-port 10 gigabit Ethernet line card" },
+      { prefix: "GigabitEthernet", slots: range(1, 2, (n) => `5/${n}`), speed: 1000, module: "Supervisor engine, 2 gigabit uplinks" },
+    ],
+    platform: "NS-6509 modular chassis switch (6500-style), 9 slots",
+  },
+  { id: "pc", kind: "pc", label: "pc", namePrefix: "PC", ports: [{ prefix: "Ethernet", slots: ["0"], speed: 1000 }], platform: "Workstation" },
+  { id: "server", kind: "server", label: "server", namePrefix: "SRV", ports: [{ prefix: "Ethernet", slots: ["0", "1"], speed: 1000 }], platform: "Server" },
 ];
 
 export function getModel(id: string): DeviceModel | undefined {
@@ -128,19 +146,20 @@ export function nextDeviceName(modelId: string, existing: string[]): string {
   for (let i = 1; ; i++) if (!taken.has(`${prefix}${i}`.toLowerCase())) return `${prefix}${i}`;
 }
 
-export function createSubinterface(device: Device, parentId: string, vlan: number): Interface {
+/** Subinterface `<parent>.<number>`; the 802.1Q tag defaults to the number (the CLI sets it with `encapsulation dot1Q`). */
+export function createSubinterface(device: Device, parentId: string, number: number, vlan: number | undefined = number): Interface {
   const parent = device.interfaces.find((i) => i.id === parentId);
   if (!parent) throw new Error("unknown parent interface");
-  return makeInterface(`${parent.name}.${vlan}`, "subinterface", "routed", parent.speed, { parent: parent.id, vlan, mac: parent.mac });
+  return makeInterface(`${parent.name}.${number}`, "subinterface", "routed", parent.speed, { parent: parent.id, vlan, mac: parent.mac });
 }
 
 export function createSvi(vlan: number): Interface {
   return makeInterface(`Vlan${vlan}`, "svi", "routed", 1000, { vlan });
 }
 
-export function createLoopback(device: Device): Interface {
+export function createLoopback(device: Device, number?: number): Interface {
   const used = new Set(device.interfaces.filter((i) => i.type === "loopback").map((i) => i.name));
-  let n = 0;
-  while (used.has(`Loopback${n}`)) n++;
+  let n = number ?? 0;
+  if (number === undefined) while (used.has(`Loopback${n}`)) n++;
   return makeInterface(`Loopback${n}`, "loopback", "routed", 8000);
 }

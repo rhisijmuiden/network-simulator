@@ -11,8 +11,8 @@ export const navigation: NavGroup[] = [
     items: [
       { path: "/", label: "nav.dashboard", icon: LayoutDashboard },
       { path: "/topologies", label: "nav.topologies", icon: Network },
-      { path: "/devices", label: "nav.devices", icon: Server, phase: 3 },
-      { path: "/console", label: "nav.console", icon: TerminalSquare, phase: 3 },
+      { path: "/devices", label: "nav.devices", icon: Server },
+      { path: "/console", label: "nav.console", icon: TerminalSquare },
       { path: "/lessons", label: "nav.lessons", icon: GraduationCap, phase: 4 },
     ],
   },

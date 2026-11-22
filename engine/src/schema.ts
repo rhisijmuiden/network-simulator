@@ -52,6 +52,7 @@ export const DeviceSchema = z.object({
     .array(
       z.object({
         name: text(64).min(1),
+        type: z.enum(["standard", "extended"]).optional(),
         rules: z
           .array(
             z.object({
