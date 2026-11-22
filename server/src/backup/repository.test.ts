@@ -37,6 +37,21 @@ class MemoryBackend implements Backend {
   }
 }
 
+/** Deterministic pseudo-random bytes (xorshift32), so that chunk boundaries are the same on every run. */
+function seededBytes(n: number, seed: number): Buffer {
+  const out = Buffer.alloc(n);
+  let x = seed >>> 0 || 1;
+  for (let i = 0; i < n; i += 4) {
+    x ^= x << 13;
+    x >>>= 0;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    x >>>= 0;
+    out.writeUInt32LE(x, i);
+  }
+  return out;
+}
+
 const meta = { appVersion: "0.1.0", schemaVersion: 1, hostname: "test" };
 const src = (path: string, data: Buffer): Source => ({ path, mode: 0o600, open: () => Readable.from([data]) });
 
@@ -57,7 +72,7 @@ describe("repository", () => {
   it("makes full and incremental backups that restore on their own", async () => {
     const b = new MemoryBackend();
     const keys = await openRepo(b, "correct horse battery", true);
-    const db1 = randomBytes(16 * 1024 * 1024);
+    const db1 = seededBytes(16 * 1024 * 1024, 20261122);
     const full = await createBackup(b, keys, [src("database.sql", db1), src("files/secret.key", Buffer.from("k1"))], { kind: "full", ...meta });
     expect(full.manifest.kind).toBe("full");
 
@@ -66,7 +81,9 @@ describe("repository", () => {
     const inc = await createBackup(b, keys, [src("database.sql", db2), src("files/secret.key", Buffer.from("k1"))], { kind: "incremental", ...meta });
     expect(inc.manifest.kind).toBe("incremental");
     expect(inc.manifest.chainId).toBe(full.manifest.chainId);
-    expect(inc.uploadedBytes).toBeLessThan(full.uploadedBytes / 3);
+    // An insertion rewrites the chunk it lands in and at most the next one (each up to MAX_CHUNK).
+    expect(inc.uploadedBytes).toBeLessThanOrEqual(2 * MAX_CHUNK + 64 * 1024);
+    expect(inc.uploadedBytes).toBeLessThan(full.uploadedBytes / 2);
 
     const list = await listBackups(b, keys);
     expect(list.map((l) => l.id).sort()).toEqual([full.manifest.id, inc.manifest.id].sort());
