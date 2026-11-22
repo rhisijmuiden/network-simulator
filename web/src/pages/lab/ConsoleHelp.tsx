@@ -17,6 +17,23 @@ const EXAMPLES = [
   "ping 192.168.1.10",
 ];
 
+const VPN: [string, string][] = [
+  ["R1(config)#", "crypto isakmp policy 10"],
+  ["R1(config-isakmp)#", "encryption aes 256"],
+  ["R1(config-isakmp)#", "hash sha256"],
+  ["R1(config-isakmp)#", "authentication pre-share"],
+  ["R1(config-isakmp)#", "group 14"],
+  ["R1(config)#", "crypto isakmp key Lab-Secret1 address 198.51.100.2"],
+  ["R1(config)#", "crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac"],
+  ["R1(config)#", "access-list 110 permit ip 10.1.0.0 0.0.0.255 10.2.0.0 0.0.0.255"],
+  ["R1(config)#", "crypto map VPN 10 ipsec-isakmp"],
+  ["R1(config-crypto-map)#", "set peer 198.51.100.2"],
+  ["R1(config-crypto-map)#", "set transform-set TS"],
+  ["R1(config-crypto-map)#", "match address 110"],
+  ["R1(config)#", "interface gi0/1"],
+  ["R1(config-if)#", "crypto map VPN"],
+];
+
 /** Explains the device console and links to the topologies where it is opened. */
 export default function ConsoleHelp() {
   const { t } = useTranslation();
@@ -46,6 +63,10 @@ export default function ConsoleHelp() {
               {EXAMPLES.map((l, i) => `${i < 1 ? "R1>" : i < 2 ? "R1#" : i < 3 ? "R1(config)#" : i < 6 ? "R1(config-if)#" : "R1#"} ${l}`).join("\n")}
             </pre>
             <p className="mt-3 text-sm text-muted">{t("consolePage.exampleText")}</p>
+          </Card>
+          <Card title={t("consolePage.vpnTitle")}>
+            <pre className="overflow-x-auto rounded-md bg-nacht p-4 font-mono text-[12.5px] leading-relaxed text-white/90">{VPN.map(([p, l]) => `${p} ${l}`).join("\n")}</pre>
+            <p className="mt-3 text-sm text-muted">{t("consolePage.vpnText")}</p>
           </Card>
         </div>
         <Card title={t("consolePage.topologies")}>

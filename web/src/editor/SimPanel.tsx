@@ -167,6 +167,7 @@ function Legend() {
     [PACKET_COLORS["echo-reply"], t("sim.legend.reply")],
     [PACKET_COLORS.unreachable, t("sim.legend.error")],
     [PACKET_COLORS.tcp, "TCP"],
+    [PACKET_COLORS.esp, t("sim.legend.ipsec")],
   ];
   return (
     <div className="ml-auto hidden items-center gap-3 pb-1.5 md:flex">

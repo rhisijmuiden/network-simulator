@@ -451,6 +451,10 @@
     "services": {
       "title": "Kantoor met diensten",
       "text": "Pc's op DHCP via een router, en een server met DNS, web en gedeelde bestanden."
+    },
+    "ipsec": {
+      "title": "Site-to-site-VPN",
+      "text": "Twee locaties verbonden door een IPsec-tunnel over een internetrouter."
     }
   },
   "topologies": {
@@ -574,7 +578,7 @@
     "vlanName": "Naam",
     "add": "Toevoegen",
     "dynamic": {
-      "title": "Dynamische routering",
+      "title": "Dynamische routering en VPN",
       "none": "Er draait geen routeringsprotocol op dit apparaat.",
       "ospf": "OSPF-proces {{pid}}, router-ID {{id}}",
       "bgp": "BGP, AS {{asn}}",
@@ -593,6 +597,21 @@
         "notConfigured": "Buur niet geconfigureerd",
         "unreachable": "Onbereikbaar",
         "notConnected": "Niet direct verbonden"
+      },
+      "ipsec": "IPsec-tunnels",
+      "ipsecUp": "Actief",
+      "ipsecHint": "Stel IPsec in via de console: crypto isakmp policy, crypto ipsec transform-set, crypto map.",
+      "tunnel": {
+        "incomplete": "Onvolledig",
+        "unreachable": "Peer onbereikbaar",
+        "noPeer": "Geen crypto map bij peer",
+        "peerMismatch": "Peer wijst ergens anders heen",
+        "filtered": "Geblokkeerd door ACL",
+        "isakmpPolicy": "Fase 1-policy verschilt",
+        "noCertificate": "Geen certificaten",
+        "key": "Sleutel verschilt",
+        "transform": "Fase 2 verschilt",
+        "acl": "Crypto-ACL niet gespiegeld"
       }
     },
     "dhcp": "Automatisch een adres krijgen (DHCP)",
@@ -686,7 +705,8 @@
     "legend": {
       "request": "Verzoek",
       "reply": "Antwoord",
-      "error": "Fout"
+      "error": "Fout",
+      "ipsec": "IPsec"
     },
     "running": "Pakketten onderweg…",
     "out": {
@@ -737,7 +757,9 @@
       "arp-failed": "geen ARP-antwoord van {{detail}}.",
       "ttl-expired": "TTL verlopen.",
       "not-routing": "dit apparaat routeert geen pakketten.",
-      "storm": "broadcaststorm."
+      "storm": "broadcaststorm.",
+      "ipsec-no-sa": "geen werkende IPsec-tunnel naar {{detail}}: zie de diagnose.",
+      "ipsec-plaintext": "onversleuteld verkeer dat volgens de crypto map door de IPsec-tunnel had moeten komen."
     },
     "noDropHint": "Onderweg is niets weggegooid: controleer de terugweg en de adressen.",
     "arpHint": "Het eerste pakket wacht vaak op ARP. Voer de test nog eens uit.",
@@ -753,7 +775,8 @@
       "time-exceeded": "Tijd overschreden",
       "unreachable": "Onbereikbaar",
       "tcp": "TCP",
-      "udp": "UDP"
+      "udp": "UDP",
+      "esp": "ESP (IPsec)"
     },
     "storm": "Broadcaststorm: {{frames}} frames. Zet spanning tree aan of haal de lus weg."
   },
@@ -787,6 +810,18 @@
       "noServer": "{{device}} gebruikt DHCP, maar geen DHCP-server antwoordt: zet een server met DHCP in zijn netwerk of stel ip helper-address in op de router.",
       "noPool": "{{device}} bereikt een DHCP-server zonder pool voor zijn netwerk.",
       "exhausted": "{{device}} krijgt geen adres: de DHCP-pool is vol."
+    },
+    "ipsec": {
+      "incomplete": "{{device}}: crypto map {{map}} is onvolledig. Er zijn set peer, set transform-set en match address nodig.",
+      "unreachable": "{{device}}: IPsec-peer {{peer}} is niet bereikbaar (controleer de routes aan beide kanten).",
+      "noPeer": "{{device}}: IPsec-peer {{peer}} heeft geen crypto map op die interface.",
+      "peerMismatch": "{{device}}: de crypto map op {{peer}} wijst niet terug naar {{device}} (set peer).",
+      "filtered": "{{device}}: een toegangslijst blokkeert IKE (UDP 500) of ESP tussen {{device}} en {{peer}}.",
+      "isakmpPolicy": "{{device}}: geen passende ISAKMP-policy met {{peer}} (versleuteling, hash, authenticatie en groep moeten gelijk zijn).",
+      "noCertificate": "{{device}}: de ISAKMP-policy gebruikt rsa-sig, maar er zijn geen certificaten. Gebruik authentication pre-share.",
+      "key": "{{device}}: de pre-shared key voor {{peer}} ontbreekt of is aan beide kanten anders.",
+      "transform": "{{device}}: geen passende transform set met {{peer}} (of de PFS-groep verschilt).",
+      "acl": "{{device}}: de crypto-toegangslijsten van {{device}} en {{peer}} zijn geen spiegelbeeld van elkaar."
     }
   },
   "console": {
@@ -863,7 +898,9 @@
     "noTopologies": "Nog geen topologieën",
     "create": "Topologie maken",
     "devices_one": "{{count}} apparaat",
-    "devices_other": "{{count}} apparaten"
+    "devices_other": "{{count}} apparaten",
+    "vpnTitle": "Voorbeeld: site-to-site-VPN",
+    "vpnText": "Doe hetzelfde op de andere router met de adressen omgedraaid. Controleer met show crypto session en show crypto ipsec sa."
   },
   "services": {
     "web": {

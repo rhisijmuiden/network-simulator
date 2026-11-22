@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   bgpConfig,
+  ipsecConfig,
   bgpState,
   createLoopback,
   createSubinterface,
@@ -545,9 +546,11 @@ function DynamicRouting({ device, sim }: { device: Device; sim: Simulator }) {
   const bgp = bgpConfig(device);
   const neighbors = ospf ? ospfNeighbors(sim.net, device) : [];
   const sessions = bgp ? bgpState(sim.net, sim.routes).sessions.filter((s) => s.device.id === device.id) : [];
+  const ipsec = ipsecConfig(device);
+  const tunnels = sim.tunnels.filter((x) => x.device.id === device.id);
   return (
     <Section title={t("inspector.dynamic.title")}>
-      {!ospf && !bgp && <p className="text-xs text-muted">{t("inspector.dynamic.none")}</p>}
+      {!ospf && !bgp && !ipsec && <p className="text-xs text-muted">{t("inspector.dynamic.none")}</p>}
       {ospf && (
         <div className="space-y-1.5">
           <p className="text-xs font-bold">
@@ -591,7 +594,23 @@ function DynamicRouting({ device, sim }: { device: Device; sim: Simulator }) {
           </ul>
         </div>
       )}
+      {ipsec && (
+        <div className="mt-3 space-y-1.5">
+          <p className="text-xs font-bold">{t("inspector.dynamic.ipsec")}</p>
+          <ul className="space-y-1">
+            {tunnels.map((x) => (
+              <li key={`${x.entry.map}-${x.entry.seq}-${x.iface.id}`} className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs">
+                <span className="min-w-0 flex-1 font-mono">
+                  {x.entry.map} {x.entry.seq} <span className="text-muted">→ {x.entry.peer ?? "?"}</span>
+                </span>
+                {x.problem ? <Badge tone="warn">{t(`inspector.dynamic.tunnel.${x.problem}`)}</Badge> : <Badge tone="ok">{t("inspector.dynamic.ipsecUp")}</Badge>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <p className="mt-3 text-xs text-muted">{t("inspector.dynamic.hint")}</p>
+      {device.kind === "router" && <p className="mt-1 text-xs text-muted">{t("inspector.dynamic.ipsecHint")}</p>}
     </Section>
   );
 }

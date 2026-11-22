@@ -451,6 +451,10 @@
     "services": {
       "title": "Office with services",
       "text": "PCs on DHCP through a router, and a server with DNS, web and file sharing."
+    },
+    "ipsec": {
+      "title": "Site-to-site VPN",
+      "text": "Two sites joined by an IPsec tunnel over an internet router."
     }
   },
   "topologies": {
@@ -574,7 +578,7 @@
     "vlanName": "Name",
     "add": "Add",
     "dynamic": {
-      "title": "Dynamic routing",
+      "title": "Dynamic routing and VPN",
       "none": "No routing protocol is running on this device.",
       "ospf": "OSPF process {{pid}}, router ID {{id}}",
       "bgp": "BGP, AS {{asn}}",
@@ -593,6 +597,21 @@
         "notConfigured": "Peer not configured",
         "unreachable": "Unreachable",
         "notConnected": "Not directly connected"
+      },
+      "ipsec": "IPsec tunnels",
+      "ipsecUp": "Up",
+      "ipsecHint": "Configure IPsec in the console: crypto isakmp policy, crypto ipsec transform-set, crypto map.",
+      "tunnel": {
+        "incomplete": "Incomplete",
+        "unreachable": "Peer unreachable",
+        "noPeer": "No crypto map at peer",
+        "peerMismatch": "Peer points elsewhere",
+        "filtered": "Blocked by ACL",
+        "isakmpPolicy": "Phase 1 policy mismatch",
+        "noCertificate": "No certificates",
+        "key": "Key mismatch",
+        "transform": "Phase 2 mismatch",
+        "acl": "Crypto ACL not mirrored"
       }
     },
     "dhcp": "Get an address automatically (DHCP)",
@@ -686,7 +705,8 @@
     "legend": {
       "request": "Request",
       "reply": "Reply",
-      "error": "Error"
+      "error": "Error",
+      "ipsec": "IPsec"
     },
     "running": "Packets on their way…",
     "out": {
@@ -737,7 +757,9 @@
       "arp-failed": "no ARP reply from {{detail}}.",
       "ttl-expired": "TTL expired.",
       "not-routing": "this device does not route packets.",
-      "storm": "broadcast storm."
+      "storm": "broadcast storm.",
+      "ipsec-no-sa": "no working IPsec tunnel to {{detail}}: see the diagnostics.",
+      "ipsec-plaintext": "unencrypted traffic that the crypto map expects to arrive through the IPsec tunnel."
     },
     "noDropHint": "Nothing was dropped on the way: check the return path and the addresses.",
     "arpHint": "The first packet often waits for ARP. Run the test again.",
@@ -753,7 +775,8 @@
       "time-exceeded": "Time exceeded",
       "unreachable": "Unreachable",
       "tcp": "TCP",
-      "udp": "UDP"
+      "udp": "UDP",
+      "esp": "ESP (IPsec)"
     },
     "storm": "Broadcast storm: {{frames}} frames. Turn on spanning tree or remove the loop."
   },
@@ -787,6 +810,18 @@
       "noServer": "{{device}} uses DHCP, but no DHCP server answers: put a server with DHCP on its network or set ip helper-address on the router.",
       "noPool": "{{device}} reaches a DHCP server that has no pool for its network.",
       "exhausted": "{{device}} gets no address: the DHCP pool is full."
+    },
+    "ipsec": {
+      "incomplete": "{{device}}: crypto map {{map}} is incomplete. It needs set peer, set transform-set and match address.",
+      "unreachable": "{{device}}: IPsec peer {{peer}} cannot be reached (check the routes on both sides).",
+      "noPeer": "{{device}}: IPsec peer {{peer}} has no crypto map on that interface.",
+      "peerMismatch": "{{device}}: the crypto map at {{peer}} does not point back to {{device}} (set peer).",
+      "filtered": "{{device}}: an access list blocks IKE (UDP 500) or ESP between {{device}} and {{peer}}.",
+      "isakmpPolicy": "{{device}}: no matching ISAKMP policy with {{peer}} (encryption, hash, authentication and group must be equal).",
+      "noCertificate": "{{device}}: the ISAKMP policy uses rsa-sig, but there are no certificates. Use authentication pre-share.",
+      "key": "{{device}}: the pre-shared key for {{peer}} is missing or different on both sides.",
+      "transform": "{{device}}: no matching transform set with {{peer}} (or the PFS group differs).",
+      "acl": "{{device}}: the crypto access lists of {{device}} and {{peer}} are not mirror images."
     }
   },
   "console": {
@@ -863,7 +898,9 @@
     "noTopologies": "No topologies yet",
     "create": "Create a topology",
     "devices_one": "{{count}} device",
-    "devices_other": "{{count}} devices"
+    "devices_other": "{{count}} devices",
+    "vpnTitle": "Example: site-to-site VPN",
+    "vpnText": "Do the same on the other router with the addresses swapped. Check with show crypto session and show crypto ipsec sa."
   },
   "services": {
     "web": {

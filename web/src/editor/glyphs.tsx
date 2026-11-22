@@ -87,4 +87,5 @@ export const PACKET_COLORS: Record<FrameKind, string> = {
   unreachable: "var(--status-warning)",
   tcp: "#B58CFF",
   udp: "#B58CFF",
+  esp: "#F2C14E",
 };

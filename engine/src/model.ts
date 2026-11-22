@@ -78,7 +78,7 @@ export interface PortMatch {
   to?: number;
 }
 
-export type AclProtocol = "ip" | "icmp" | "tcp" | "udp";
+export type AclProtocol = "ip" | "icmp" | "tcp" | "udp" | "esp";
 
 export interface AclRule {
   id: string;

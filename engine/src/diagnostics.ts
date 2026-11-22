@@ -5,6 +5,7 @@ import { NetworkIndex } from "./network.js";
 import { resolveDhcp } from "./services.js";
 import { bgpState } from "./protocols/bgp.js";
 import { ospfNeighbors } from "./protocols/ospf.js";
+import { ipsecConfig, ipsecTunnels } from "./protocols/ipsec.js";
 import { buildRoutingTables } from "./routing.js";
 
 export interface Finding {
@@ -104,6 +105,14 @@ export function diagnose(configured: Topology): Finding[] {
   if (topology.devices.some((d) => d.protocols.bgp)) {
     for (const s of bgpState(net, buildRoutingTables(net)).sessions)
       if (s.state !== "Established") out.push({ severity: "warning", code: `bgp.${s.problem ?? "noPeer"}`, device: s.device.id, params: { device: s.device.name, peer: s.neighbor.address } });
+  }
+  // IPsec: tunnels that do not come up. Report a pair once, from the end with the lower id.
+  if (topology.devices.some((d) => ipsecConfig(d))) {
+    for (const tu of ipsecTunnels(net, buildRoutingTables(net))) {
+      if (!tu.problem) continue;
+      if (tu.remote && tu.remote.device.id < tu.device.id && tu.problem !== "incomplete") continue;
+      out.push({ severity: "warning", code: `ipsec.${tu.problem}`, device: tu.device.id, params: { device: tu.device.name, map: `${tu.entry.map} ${tu.entry.seq}`, peer: tu.entry.peer ?? "?" } });
+    }
   }
   return out;
 }
