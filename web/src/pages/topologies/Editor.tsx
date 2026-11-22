@@ -7,6 +7,7 @@ import { api } from "../../api";
 import { Alert, Spinner } from "../../components/ui";
 import { useErrorText } from "../../hooks";
 import { Canvas, type CanvasHandle, type Selection, type Tool } from "../../editor/Canvas";
+import { ConsoleWindow, hasConsole } from "../../editor/Console";
 import { CommitInput } from "../../editor/fields";
 import { useTopologyHistory } from "../../editor/history";
 import { Inspector } from "../../editor/Inspector";
@@ -52,6 +53,8 @@ function EditorView({ initial }: { initial: Loaded }) {
   const [, setTick] = useState(0);
   const canvas = useRef<CanvasHandle>(null);
   const playback = usePlaybackInstance();
+  const [consoles, setConsoles] = useState<string[]>([]);
+  const [activeConsole, setActiveConsole] = useState<string | null>(null);
 
   // The simulator only depends on configuration, not on where devices are drawn.
   const key = logicKey(topology);
@@ -129,6 +132,23 @@ function EditorView({ initial }: { initial: Loaded }) {
     playback.start(run);
     setTick((x) => x + 1);
   };
+
+  const openConsole = (deviceId: string) => {
+    const d = topology.devices.find((x) => x.id === deviceId);
+    if (!d || !hasConsole(d.kind)) return;
+    setConsoles((c) => (c.includes(deviceId) ? c : [...c, deviceId]));
+    setActiveConsole(deviceId);
+  };
+  const closeConsole = (deviceId: string) => {
+    setConsoles((c) => {
+      const next = c.filter((x) => x !== deviceId);
+      setActiveConsole((a) => (a === deviceId ? (next.at(-1) ?? null) : a));
+      return next;
+    });
+  };
+  // Close consoles of devices that were deleted (or undone).
+  const openConsoles = consoles.filter((id) => topology.devices.some((d) => d.id === id));
+  const active = activeConsole && openConsoles.includes(activeConsole) ? activeConsole : (openConsoles.at(-1) ?? null);
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify({ name, description: initial.description, topology }, null, 2)], { type: "application/json" });
@@ -221,6 +241,7 @@ function EditorView({ initial }: { initial: Loaded }) {
               onAddDevice={add}
               onCreateLink={onLink}
               onCancelTool={() => setTool("select")}
+              onOpenDevice={openConsole}
             />
             {topology.devices.length === 0 && (
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -230,10 +251,20 @@ function EditorView({ initial }: { initial: Loaded }) {
                 </div>
               </div>
             )}
+            <ConsoleWindow
+              topology={topology}
+              sim={sim}
+              open={openConsoles}
+              active={active}
+              onActivate={setActiveConsole}
+              onClose={closeConsole}
+              onChange={history.commit}
+              onRun={onRun}
+            />
           </div>
           <SimPanel topology={topology} sim={sim} playback={playback} defaultSource={defaultSource} onRun={onRun} onReset={() => { sim.reset(); playback.clear(); setTick((x) => x + 1); }} />
         </div>
-        <Inspector topology={topology} sim={sim} selection={selection} onChange={history.commit} onSelect={setSelection} />
+        <Inspector topology={topology} sim={sim} selection={selection} onChange={history.commit} onSelect={setSelection} onOpenConsole={openConsole} />
       </div>
     </div>
   );

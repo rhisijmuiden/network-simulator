@@ -416,7 +416,8 @@
     "switch24": "Switch",
     "l3switch24": "Multilayer switch",
     "pc": "PC",
-    "server": "Server"
+    "server": "Server",
+    "chassis6500": "Modular chassis switch (6500-style)"
   },
   "templates": {
     "blank": {
@@ -726,5 +727,78 @@
     "modeMismatch": "{{a}} is {{ma}} but {{b}} is {{mb}}.",
     "nativeMismatch": "Native VLAN mismatch: {{a}} uses {{va}}, {{b}} uses {{vb}}.",
     "subnetMismatch": "{{a}} and {{b}} are not in the same subnet."
+  },
+  "console": {
+    "title": "Console",
+    "open": "Open console",
+    "connected": "Connected to the console port of {{name}}.",
+    "hint": "Press ? for help, Tab to complete a command, Ctrl+Z to leave configuration mode.",
+    "readOnly": "% This topology is read-only.",
+    "closeTab": "Close console of {{name}}",
+    "closeAll": "Close console",
+    "maximize": "Enlarge",
+    "restore": "Make smaller",
+    "input": "Command for {{name}}"
+  },
+  "devices": {
+    "title": "Device library",
+    "subtitle": "The devices you can place in a topology. Drag them from the left side of the editor.",
+    "cli": "Command line",
+    "ports_one": "{{count}} port",
+    "ports_other": "{{count}} ports",
+    "kind": {
+      "router": "Router",
+      "switch": "Layer 2 switch",
+      "l3switch": "Layer 3 switch",
+      "pc": "Client",
+      "server": "Server"
+    },
+    "about": {
+      "router": "Connects networks: static routes, subinterfaces (router on a stick), access lists. Configure it in the console or in the side panel.",
+      "switch24": "Access switch with VLANs, trunks and spanning tree. Management address on interface Vlan1.",
+      "l3switch24": "Switch that also routes between VLANs with SVIs (interface vlan) and routed ports (no switchport).",
+      "chassis6500": "Core switch in the style of a Catalyst 6500: line cards per slot (show module), switch virtual interfaces and routed ports.",
+      "pc": "Workstation with one network card, an IP address and a default gateway.",
+      "server": "Server with two network cards and open ports for web traffic."
+    }
+  },
+  "consolePage": {
+    "title": "Console",
+    "subtitle": "The command line of every router and switch, in your browser.",
+    "howTitle": "Opening a console",
+    "how": "Open a topology and double-click a router or switch, or select it and click the terminal icon in the side panel. Each device gets its own tab; changes you make in the console are saved with the topology and can be undone in the editor.",
+    "keys": {
+      "tab": {
+        "title": "Tab",
+        "text": "Completes the command word."
+      },
+      "help": {
+        "title": "?",
+        "text": "Lists what you can type next."
+      },
+      "history": {
+        "title": "Arrow up and down",
+        "text": "Scroll through earlier commands."
+      },
+      "ctrlz": {
+        "title": "Ctrl+Z",
+        "text": "Leaves configuration mode."
+      },
+      "abbrev": {
+        "title": "Abbreviations",
+        "text": "sh ip int br works like show ip interface brief."
+      },
+      "do": {
+        "title": "do",
+        "text": "Runs a show command from configuration mode."
+      }
+    },
+    "exampleTitle": "Example",
+    "exampleText": "The commands follow Cisco IOS. The simulator has its own engine: no real Cisco software is used.",
+    "topologies": "Your topologies",
+    "noTopologies": "No topologies yet",
+    "create": "Create a topology",
+    "devices_one": "{{count}} device",
+    "devices_other": "{{count}} devices"
   }
 }

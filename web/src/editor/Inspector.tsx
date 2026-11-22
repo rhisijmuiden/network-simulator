@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, TerminalSquare, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -19,6 +19,7 @@ import {
 } from "@netsim/engine";
 import { Badge, Button, Toggle } from "../components/ui";
 import { AclEditor } from "./AclEditor";
+import { hasConsole } from "./Console";
 import { CommitInput, IconButton, MiniTable, Row, Section, SmallSelect } from "./fields";
 import { DeviceIcon } from "./glyphs";
 import { findDevice, removeDevice, removeIface, removeLink, updateDevice, updateIface, edit } from "./ops";
@@ -33,6 +34,7 @@ type Props = {
   readOnly?: boolean;
   onChange: (t: Topology) => void;
   onSelect: (s: Selection) => void;
+  onOpenConsole?: (deviceId: string) => void;
 };
 
 export function Inspector(props: Props) {
@@ -53,13 +55,14 @@ export function Inspector(props: Props) {
   return <DevicePanel {...props} device={device} />;
 }
 
-function Panel({ title, icon, onClose, children }: { title: React.ReactNode; icon?: React.ReactNode; onClose: () => void; children: React.ReactNode }) {
+function Panel({ title, icon, actions, onClose, children }: { title: React.ReactNode; icon?: React.ReactNode; actions?: React.ReactNode; onClose: () => void; children: React.ReactNode }) {
   const { t } = useTranslation();
   return (
     <aside className="absolute inset-y-0 right-0 z-20 flex w-full max-w-[360px] flex-col border-l border-line bg-raised shadow-xl lg:static lg:w-[360px] lg:shadow-none">
       <header className="flex items-center gap-3 border-b border-line px-4 py-3">
         {icon}
         <div className="min-w-0 flex-1">{title}</div>
+        {actions}
         <IconButton title={t("common.close")} onClick={onClose}>
           <X size={18} />
         </IconButton>
@@ -102,6 +105,13 @@ function DevicePanel(props: Props & { device: Device }) {
           />
           <div className="px-1 text-xs text-muted">{model ? t(`catalog.${model.label}`) : device.model}</div>
         </>
+      }
+      actions={
+        props.onOpenConsole && hasConsole(device.kind) ? (
+          <IconButton title={t("console.open")} onClick={() => props.onOpenConsole!(device.id)}>
+            <TerminalSquare size={18} />
+          </IconButton>
+        ) : undefined
       }
       onClose={() => props.onSelect(null)}
     >

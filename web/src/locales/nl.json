@@ -416,7 +416,8 @@
     "switch24": "Switch",
     "l3switch24": "Multilayer-switch",
     "pc": "Pc",
-    "server": "Server"
+    "server": "Server",
+    "chassis6500": "Modulaire chassisswitch (6500-stijl)"
   },
   "templates": {
     "blank": {
@@ -726,5 +727,78 @@
     "modeMismatch": "{{a}} is {{ma}} maar {{b}} is {{mb}}.",
     "nativeMismatch": "Native VLAN verschilt: {{a}} gebruikt {{va}}, {{b}} gebruikt {{vb}}.",
     "subnetMismatch": "{{a}} en {{b}} zitten niet in hetzelfde subnet."
+  },
+  "console": {
+    "title": "Console",
+    "open": "Console openen",
+    "connected": "Verbonden met de consolepoort van {{name}}.",
+    "hint": "Druk op ? voor hulp, Tab om een commando aan te vullen, Ctrl+Z om de configuratiemodus te verlaten.",
+    "readOnly": "% Deze topologie is alleen-lezen.",
+    "closeTab": "Console van {{name}} sluiten",
+    "closeAll": "Console sluiten",
+    "maximize": "Vergroten",
+    "restore": "Verkleinen",
+    "input": "Commando voor {{name}}"
+  },
+  "devices": {
+    "title": "Apparatenbibliotheek",
+    "subtitle": "De apparaten die je in een topologie kunt plaatsen. Sleep ze vanaf de linkerkant van de editor.",
+    "cli": "Opdrachtregel",
+    "ports_one": "{{count}} poort",
+    "ports_other": "{{count}} poorten",
+    "kind": {
+      "router": "Router",
+      "switch": "Laag 2-switch",
+      "l3switch": "Laag 3-switch",
+      "pc": "Client",
+      "server": "Server"
+    },
+    "about": {
+      "router": "Verbindt netwerken: statische routes, subinterfaces (router on a stick) en access lists. Configureer hem in de console of in het zijpaneel.",
+      "switch24": "Toegangsswitch met VLAN's, trunks en spanning tree. Beheeradres op interface Vlan1.",
+      "l3switch24": "Switch die ook routeert tussen VLAN's, met SVI's (interface vlan) en gerouteerde poorten (no switchport).",
+      "chassis6500": "Kernswitch in de stijl van een Catalyst 6500: linecards per slot (show module), virtuele switchinterfaces en gerouteerde poorten.",
+      "pc": "Werkstation met één netwerkkaart, een IP-adres en een standaardgateway.",
+      "server": "Server met twee netwerkkaarten en open poorten voor webverkeer."
+    }
+  },
+  "consolePage": {
+    "title": "Console",
+    "subtitle": "De opdrachtregel van elke router en switch, in je browser.",
+    "howTitle": "Een console openen",
+    "how": "Open een topologie en dubbelklik op een router of switch, of selecteer hem en klik op het terminalpictogram in het zijpaneel. Elk apparaat krijgt een eigen tabblad; wijzigingen in de console worden met de topologie opgeslagen en zijn in de editor ongedaan te maken.",
+    "keys": {
+      "tab": {
+        "title": "Tab",
+        "text": "Vult het commandowoord aan."
+      },
+      "help": {
+        "title": "?",
+        "text": "Toont wat je daarna kunt typen."
+      },
+      "history": {
+        "title": "Pijl omhoog en omlaag",
+        "text": "Blader door eerdere commando's."
+      },
+      "ctrlz": {
+        "title": "Ctrl+Z",
+        "text": "Verlaat de configuratiemodus."
+      },
+      "abbrev": {
+        "title": "Afkortingen",
+        "text": "sh ip int br werkt als show ip interface brief."
+      },
+      "do": {
+        "title": "do",
+        "text": "Voert een show-commando uit vanuit de configuratiemodus."
+      }
+    },
+    "exampleTitle": "Voorbeeld",
+    "exampleText": "De commando's volgen Cisco IOS. De simulator heeft een eigen engine: er wordt geen echte Cisco-software gebruikt.",
+    "topologies": "Jouw topologieën",
+    "noTopologies": "Nog geen topologieën",
+    "create": "Topologie maken",
+    "devices_one": "{{count}} apparaat",
+    "devices_other": "{{count}} apparaten"
   }
 }

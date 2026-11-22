@@ -16,7 +16,7 @@ oogopslag ziet wat werkt en wat niet.
 | --- | --- | --- |
 | 1 | Fundament: gebruikers, mailserver, versleutelde back-ups, updates vanuit de interface, Engels en Nederlands | Klaar |
 | 2 | Simulatie-engine, visuele topologie-editor, geanimeerde verkeersstromen | Klaar |
-| 3 | Cisco-achtige CLI voor routers en switches, vanaf nul gebouwd (ook Catalyst 6500-stijl): VLAN's, trunks, statische routes, OSPF, BGP, ACL's, later IPsec. Windows-werkstations en web-/bestandsservers | Gepland |
+| 3 | Cisco-achtige CLI voor routers en switches, vanaf nul gebouwd (ook Catalyst 6500-stijl): VLAN's, trunks, statische routes, OSPF, BGP, ACL's, later IPsec. Windows-werkstations en web-/bestandsservers | Bezig: de CLI en de console in de browser zijn klaar ([docs/console.nl.md](docs/console.nl.md)) |
 | 4 | Lessen en troubleshootingopdrachten met automatische controle | Gepland |
 
 Er worden geen echte Cisco-images gebruikt: elk apparaat wordt door de eigen engine van het platform gesimuleerd.

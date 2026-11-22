@@ -26,6 +26,8 @@ type Props = {
   onAddDevice: (model: string, x: number, y: number) => void;
   onCreateLink: (a: Endpoint, b: Endpoint) => void;
   onCancelTool: () => void;
+  /** Double-click on a device: open its console. */
+  onOpenDevice?: (id: string) => void;
   handle?: Ref<CanvasHandle>;
 };
 
@@ -128,6 +130,7 @@ export function Canvas(props: Props) {
     return () => svg.removeEventListener("wheel", onWheel);
   }, [zoomAt]);
 
+  const lastDown = useRef<{ id: string; at: number } | null>(null);
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0 && e.button !== 1) return;
     setPicker(null);
@@ -145,6 +148,17 @@ export function Canvas(props: Props) {
     if (linkId && tool === "select") {
       props.onSelect({ type: "link", id: linkId });
       return;
+    }
+    // Double-click on a device opens its console (detected here: pointer capture retargets dblclick).
+    if (id && tool === "select") {
+      const last = lastDown.current;
+      lastDown.current = { id, at: e.timeStamp };
+      if (last && last.id === id && e.timeStamp - last.at < 400) {
+        lastDown.current = null;
+        props.onSelect({ type: "device", id });
+        props.onOpenDevice?.(id);
+        return;
+      }
     }
     svgRef.current!.setPointerCapture(e.pointerId);
     if (id && tool === "select") {

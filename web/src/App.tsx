@@ -11,6 +11,8 @@ import Updates from "./pages/admin/Updates";
 import Users from "./pages/admin/Users";
 import ComingSoon from "./pages/ComingSoon";
 import Dashboard from "./pages/Dashboard";
+import ConsoleHelp from "./pages/lab/ConsoleHelp";
+import DeviceLibrary from "./pages/lab/Devices";
 import ForcePasswordChange from "./pages/ForcePasswordChange";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -69,8 +71,8 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="topologies" element={<TopologyList />} />
           <Route path="topologies/:id" element={<TopologyEditor />} />
-          <Route path="devices" element={<ComingSoon feature="devices" phase={3} />} />
-          <Route path="console" element={<ComingSoon feature="console" phase={3} />} />
+          <Route path="devices" element={<DeviceLibrary />} />
+          <Route path="console" element={<ConsoleHelp />} />
           <Route path="lessons" element={<ComingSoon feature="lessons" phase={4} />} />
           <Route path="profile" element={<Profile />} />
           <Route path="admin" element={<RequireAdmin />}>

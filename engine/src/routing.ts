@@ -26,6 +26,8 @@ export interface RoutingProtocol {
   code: string;
   distance: number;
   compute(ctx: { net: NetworkIndex; connected: Map<string, RouteEntry[]> }): Map<string, RouteEntry[]>;
+  /** Lines for `show running-config`, from the device's `protocols[id]` settings. */
+  runningConfig?(config: unknown): string[];
 }
 
 const protocols: RoutingProtocol[] = [];
