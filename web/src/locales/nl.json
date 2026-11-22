@@ -439,6 +439,14 @@
     "redundant": {
       "title": "Redundante switches",
       "text": "Een lus van drie switches, opgelost door spanning tree."
+    },
+    "ospf": {
+      "title": "OSPF-driehoek",
+      "text": "Drie routers met OSPF: zet een link uit en het verkeer kiest een andere weg."
+    },
+    "bgp": {
+      "title": "Twee netwerken met BGP",
+      "text": "Twee autonome systemen die hun netwerken via eBGP uitwisselen."
     }
   },
   "topologies": {
@@ -559,7 +567,29 @@
     "vlanDatabase": "VLAN-database",
     "noPorts": "Geen access-poorten",
     "vlanName": "Naam",
-    "add": "Toevoegen"
+    "add": "Toevoegen",
+    "dynamic": {
+      "title": "Dynamische routering",
+      "none": "Er draait geen routeringsprotocol op dit apparaat.",
+      "ospf": "OSPF-proces {{pid}}, router-ID {{id}}",
+      "bgp": "BGP, AS {{asn}}",
+      "prefixes_one": "{{count}} prefix",
+      "prefixes_other": "{{count}} prefixen",
+      "hint": "Configureer OSPF en BGP in de console: router ospf 1, router bgp 65001.",
+      "problem": {
+        "area": "Ander gebied",
+        "subnet": "Ander subnet",
+        "passive": "Passief",
+        "routerId": "Zelfde router-ID"
+      },
+      "session": {
+        "noPeer": "Geen BGP-buur",
+        "remoteAs": "Verkeerd AS",
+        "notConfigured": "Buur niet geconfigureerd",
+        "unreachable": "Onbereikbaar",
+        "notConnected": "Niet direct verbonden"
+      }
+    }
   },
   "acl": {
     "lists": "Toegangslijsten",
@@ -726,7 +756,19 @@
     "shutdown": "{{where}} is uitgeschakeld.",
     "modeMismatch": "{{a}} is {{ma}} maar {{b}} is {{mb}}.",
     "nativeMismatch": "Native VLAN verschilt: {{a}} gebruikt {{va}}, {{b}} gebruikt {{vb}}.",
-    "subnetMismatch": "{{a}} en {{b}} zitten niet in hetzelfde subnet."
+    "subnetMismatch": "{{a}} en {{b}} zitten niet in hetzelfde subnet.",
+    "ospf": {
+      "area": "OSPF: {{a}} en {{b}} zitten in verschillende gebieden en worden daardoor geen buren.",
+      "subnet": "OSPF: {{a}} en {{b}} hebben een ander subnet of masker en worden daardoor geen buren.",
+      "routerId": "OSPF: {{a}} en {{b}} gebruiken hetzelfde router-ID."
+    },
+    "bgp": {
+      "noPeer": "BGP op {{device}}: geen BGP-router heeft adres {{peer}}.",
+      "remoteAs": "BGP op {{device}}: de AS-nummers voor buur {{peer}} kloppen niet.",
+      "notConfigured": "BGP op {{device}}: {{peer}} heeft geen neighbor-regel terug naar {{device}}.",
+      "unreachable": "BGP op {{device}}: buur {{peer}} is niet bereikbaar.",
+      "notConnected": "BGP op {{device}}: eBGP-buur {{peer}} is niet direct verbonden."
+    }
   },
   "console": {
     "title": "Console",

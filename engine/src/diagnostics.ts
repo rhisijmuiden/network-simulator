@@ -2,6 +2,9 @@ import { shortName } from "./catalog.js";
 import { inSubnet, isUsableHost, networkOf, parseIp } from "./ip.js";
 import { isHost, isSwitch, isSwitchport, type Device, type Interface, type Topology } from "./model.js";
 import { NetworkIndex } from "./network.js";
+import { bgpState } from "./protocols/bgp.js";
+import { ospfNeighbors } from "./protocols/ospf.js";
+import { buildRoutingTables } from "./routing.js";
 
 export interface Finding {
   severity: "error" | "warning" | "info";
@@ -81,6 +84,17 @@ export function diagnose(topology: Topology): Finding[] {
       if (!inSubnet(ipB, ipA, a.iface.ip.prefix) || a.iface.ip.prefix !== b.iface.ip.prefix)
         out.push({ severity: "error", code: "subnetMismatch", params: { a: la, b: lb } });
     }
+  }
+  // Routing protocols: OSPF routers that see each other but do not become neighbours, BGP sessions that stay down.
+  for (const d of topology.devices) {
+    for (const n of ospfNeighbors(net, d)) {
+      if (!n.problem || n.problem === "passive" || d.id > n.device.id) continue;
+      out.push({ severity: "warning", code: `ospf.${n.problem}`, device: d.id, params: { a: label(d, n.local.iface), b: label(n.device, n.iface) } });
+    }
+  }
+  if (topology.devices.some((d) => d.protocols.bgp)) {
+    for (const s of bgpState(net, buildRoutingTables(net)).sessions)
+      if (s.state !== "Established") out.push({ severity: "warning", code: `bgp.${s.problem ?? "noPeer"}`, device: s.device.id, params: { device: s.device.name, peer: s.neighbor.address } });
   }
   return out;
 }

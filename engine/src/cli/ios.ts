@@ -5,6 +5,8 @@ import type { OperationRun, Simulator } from "../simulator.js";
 import { findIface, parseIfName, parseIfRange } from "./ifname.js";
 import { complete, helpFor, matchCommand, pattern, type CommandDef } from "./parser.js";
 import * as show from "./show.js";
+import { cliExtensions, type CliExtension } from "./extensions.js";
+import "../protocols/cli.js";
 
 export type IosMode = "user" | "priv" | "config" | "if" | "if-range" | "subif" | "vlan" | "acl-ext" | "acl-std" | "line" | "router";
 
@@ -26,18 +28,9 @@ export interface Ctx {
   run?: OperationRun;
 }
 
-/** Extra configuration modes and commands, contributed by routing protocols (phase 3b) and later features. */
-export interface CliExtension {
-  /** Commands available in the given mode. */
-  commands(mode: IosMode | string): CommandDef<Ctx>[];
-  /** Prompt suffix for custom modes, for example "config-router". */
-  prompt?(mode: string): string | undefined;
-}
-
-const extensions: CliExtension[] = [];
-export function registerCliExtension(e: CliExtension): void {
-  extensions.push(e);
-}
+export type { CliExtension } from "./extensions.js";
+export { registerCliExtension } from "./extensions.js";
+const extensions = cliExtensions() as readonly CliExtension<Ctx>[];
 
 const H: Record<string, string> = {
   enable: "Turn on privileged commands",

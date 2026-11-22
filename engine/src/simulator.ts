@@ -5,6 +5,8 @@ import { NetworkIndex } from "./network.js";
 import { BROADCAST_MAC, type ArpPacket, type Frame, type FrameInfo, type Ipv4Packet, type UnreachableCode } from "./packets.js";
 import { buildRoutingTables, resolveRoute, type RouteEntry } from "./routing.js";
 import { computeStp, type StpBridge, type StpPort } from "./stp.js";
+import "./protocols/ospf.js";
+import "./protocols/bgp.js";
 
 export type DropReason =
   | "no-link"

@@ -53,6 +53,41 @@ Show commands: `show running-config`, `show ip interface brief`, `show interface
 Commands that have no effect in the simulator (passwords, banners, `line vty`,
 `speed`, `duplex`) are accepted so that configurations from real labs can be pasted.
 
+## OSPF and BGP
+
+Both run in their converged state: as soon as the configuration is complete, the
+routing tables are as they would be after the protocols settle.
+
+**OSPF** (`router ospf <process-id>`)
+
+- `network <address> <wildcard> area <id>` enables OSPF on the interfaces it matches;
+  `router-id`, `passive-interface <interface>`, `default-information originate`
+  (needs a static default route on that router).
+- Interface: `ip ospf cost <1-65535>`. The default cost uses a 100 Mb/s reference.
+- Neighbours form over a shared segment (also through switches and VLANs) when the
+  area, subnet and mask match, neither side is passive and the router IDs differ.
+  Loopbacks are announced as /32.
+- Routes: `O`, `O IA` (another area) and `O*E2` (default route).
+- Show: `show ip ospf neighbor`, `show ip ospf interface brief`, `show ip ospf` (also
+  lists routers that are on the segment but do not become neighbours, and why),
+  `show ip protocols`, `show ip route ospf`.
+
+**BGP** (`router bgp <as>`)
+
+- `neighbor <address> remote-as <as>`, `neighbor <address> next-hop-self`,
+  `network <address> mask <mask>` (the network must be in the routing table with
+  exactly that mask), `bgp router-id`.
+- A session comes up when both sides point at each other with the right AS numbers
+  and can reach each other; eBGP neighbours must be directly connected.
+- Paths follow the usual rules: AS-path loop check, no iBGP-to-iBGP re-advertising,
+  next hop unchanged towards iBGP peers unless `next-hop-self`, best path by shortest
+  AS path, then eBGP over iBGP. eBGP routes have distance 20, iBGP 200.
+- Show: `show ip bgp summary`, `show ip bgp`, `show ip route bgp`.
+
+The side panel (Routes tab) shows the OSPF neighbours and BGP sessions of a device,
+with the reason when one does not come up. The starter labs "OSPF triangle" and
+"Two networks with BGP" are ready to experiment with.
+
 ## Extending
 
 Routing protocols add modes and commands with `registerCliExtension` in

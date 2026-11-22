@@ -13,3 +13,5 @@ export * from "./cli/parser.js";
 export * from "./cli/ifname.js";
 export * from "./cli/ios.js";
 export * as iosShow from "./cli/show.js";
+export * from "./protocols/ospf.js";
+export * from "./protocols/bgp.js";

@@ -2,6 +2,8 @@ import { ChevronDown, ChevronRight, Plus, TerminalSquare, Trash2, X } from "luci
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  bgpConfig,
+  bgpState,
   createLoopback,
   createSubinterface,
   createSvi,
@@ -10,7 +12,10 @@ import {
   isSwitch,
   isSwitchport,
   newId,
+  ospfConfig,
+  ospfNeighbors,
   parseIp,
+  routerId,
   shortName,
   type Device,
   type Interface,
@@ -430,6 +435,7 @@ function RoutingTab({ device, topology, sim, onChange, set }: Props & { device: 
   const installed = new Set(sim.routingTable(device.id).filter((r) => r.protocol === "static").map((r) => `${r.network}/${r.prefix}`));
   const l3 = sim.net.l3Interfaces(device);
   return (
+    <>
     <Section title={t("inspector.staticRoutes")}>
       {device.staticRoutes.length === 0 && <p className="text-xs text-muted">{t("inspector.noRoutes")}</p>}
       <ul className="space-y-1.5">
@@ -492,6 +498,66 @@ function RoutingTab({ device, topology, sim, onChange, set }: Props & { device: 
           {t("inspector.addRoute")}
         </Button>
       </div>
+    </Section>
+    <DynamicRouting device={device} sim={sim} />
+    </>
+  );
+}
+
+/** Read-only summary of OSPF and BGP; they are configured in the console. */
+function DynamicRouting({ device, sim }: { device: Device; sim: Simulator }) {
+  const { t } = useTranslation();
+  const ospf = ospfConfig(device);
+  const bgp = bgpConfig(device);
+  const neighbors = ospf ? ospfNeighbors(sim.net, device) : [];
+  const sessions = bgp ? bgpState(sim.net, sim.routes).sessions.filter((s) => s.device.id === device.id) : [];
+  return (
+    <Section title={t("inspector.dynamic.title")}>
+      {!ospf && !bgp && <p className="text-xs text-muted">{t("inspector.dynamic.none")}</p>}
+      {ospf && (
+        <div className="space-y-1.5">
+          <p className="text-xs font-bold">
+            {t("inspector.dynamic.ospf", { pid: ospf.processId, id: routerId(sim.net, device) })}
+          </p>
+          <ul className="space-y-1 font-mono text-xs text-muted">
+            {ospf.networks.map((n, i) => (
+              <li key={i}>
+                {n.address} {n.wildcard} area {n.area}
+              </li>
+            ))}
+          </ul>
+          <ul className="space-y-1">
+            {neighbors.map((n, i) => (
+              <li key={i} className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs">
+                <span className="min-w-0 flex-1">
+                  <span className="font-semibold">{n.device.name}</span> <span className="text-muted">{shortName(n.local.iface.name)}</span>
+                </span>
+                {n.problem ? <Badge tone="warn">{t(`inspector.dynamic.problem.${n.problem}`)}</Badge> : <Badge tone="ok">FULL</Badge>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {bgp && (
+        <div className="mt-3 space-y-1.5">
+          <p className="text-xs font-bold">{t("inspector.dynamic.bgp", { asn: bgp.asn })}</p>
+          <ul className="space-y-1">
+            {sessions.map((s, i) => (
+              <li key={i} className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs">
+                <span className="min-w-0 flex-1 font-mono">
+                  {s.neighbor.address} <span className="text-muted">AS {s.neighbor.remoteAs}</span>
+                </span>
+                {s.state === "Established" ? (
+                  <Badge tone="ok">{t("inspector.dynamic.prefixes", { count: s.prefixes })}</Badge>
+                ) : (
+                  <Badge tone="warn">{t(`inspector.dynamic.session.${s.problem ?? "noPeer"}`)}</Badge>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="mt-3 text-xs text-muted">{t("inspector.dynamic.hint")}</p>
     </Section>
   );
 }

@@ -117,6 +117,58 @@ export class NetworkIndex {
     return this.l3Interfaces(device).find((i) => this.isUp(i) && parseIp(i.ip!.address) === ip);
   }
 
+  /**
+   * L3 interfaces in the same broadcast domain as `iface` (excluding itself): what an
+   * OSPF hello or an ARP broadcast from it would reach. Follows cables, access and trunk
+   * ports (802.1Q tags, native VLAN) and SVIs; down ports end the domain.
+   */
+  segment(iface: Interface): IfaceRef[] {
+    const start = this.ifaces.get(iface.id);
+    if (!start || !this.isUp(iface)) return [];
+    const found = new Map<string, IfaceRef>();
+    const seen = new Set<string>();
+    // Ports to leave from, with the 802.1Q tag the frame carries (null = untagged).
+    const queue: { port: Interface; tag: number | null }[] = [];
+    const enterVlan = (d: Device, vlan: number) => {
+      const key = `${d.id}/${vlan}`;
+      if (seen.has(key) || !this.vlanExists(d, vlan)) return;
+      seen.add(key);
+      for (const i of d.interfaces) {
+        if (i.type === "svi" && i.vlan === vlan && i.ip && this.isUp(i)) found.set(i.id, { device: d, iface: i });
+        else if (i.type === "ethernet" && isSwitchport(i) && this.isUp(i) && this.carriesVlan(d, i, vlan))
+          queue.push({ port: i, tag: i.mode === "access" || vlan === i.nativeVlan ? null : vlan });
+      }
+    };
+    const { device } = start;
+    if (iface.type === "svi" && iface.vlan !== undefined) enterVlan(device, iface.vlan);
+    else if (iface.type === "subinterface" && iface.parent) {
+      const parent = device.interfaces.find((i) => i.id === iface.parent);
+      if (parent && this.isUp(parent)) queue.push({ port: parent, tag: iface.vlan ?? null });
+    } else if (iface.type === "ethernet") queue.push({ port: iface, tag: null });
+    while (queue.length) {
+      const { port, tag } = queue.shift()!;
+      const key = `${port.id}/${tag ?? "u"}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const peer = this.peers.get(port.id);
+      if (!peer || !this.isUp(peer.iface)) continue;
+      const d = peer.device;
+      const p = peer.iface;
+      if (isSwitch(d) && isSwitchport(p)) {
+        if (p.mode === "access") {
+          if (tag === null) enterVlan(d, p.accessVlan);
+        } else enterVlan(d, tag ?? p.nativeVlan);
+      } else if (tag === null) {
+        if (p.ip) found.set(p.id, { device: d, iface: p });
+      } else {
+        const sub = d.interfaces.find((i) => i.type === "subinterface" && i.parent === p.id && i.vlan === tag && i.ip && this.isUp(i));
+        if (sub) found.set(sub.id, { device: d, iface: sub });
+      }
+    }
+    found.delete(iface.id);
+    return [...found.values()];
+  }
+
   /** Find which device owns an address (for labelling traceroute hops). */
   ownerOf(ip: number): IfaceRef | undefined {
     for (const d of this.devices.values()) {

@@ -439,6 +439,14 @@
     "redundant": {
       "title": "Redundant switches",
       "text": "A loop of three switches, solved by spanning tree."
+    },
+    "ospf": {
+      "title": "OSPF triangle",
+      "text": "Three routers with OSPF: shut a link and the traffic finds another way."
+    },
+    "bgp": {
+      "title": "Two networks with BGP",
+      "text": "Two autonomous systems that exchange their networks over eBGP."
     }
   },
   "topologies": {
@@ -559,7 +567,29 @@
     "vlanDatabase": "VLAN database",
     "noPorts": "No access ports",
     "vlanName": "Name",
-    "add": "Add"
+    "add": "Add",
+    "dynamic": {
+      "title": "Dynamic routing",
+      "none": "No routing protocol is running on this device.",
+      "ospf": "OSPF process {{pid}}, router ID {{id}}",
+      "bgp": "BGP, AS {{asn}}",
+      "prefixes_one": "{{count}} prefix",
+      "prefixes_other": "{{count}} prefixes",
+      "hint": "Configure OSPF and BGP in the console: router ospf 1, router bgp 65001.",
+      "problem": {
+        "area": "Area mismatch",
+        "subnet": "Subnet mismatch",
+        "passive": "Passive",
+        "routerId": "Same router ID"
+      },
+      "session": {
+        "noPeer": "No BGP peer",
+        "remoteAs": "Wrong AS",
+        "notConfigured": "Peer not configured",
+        "unreachable": "Unreachable",
+        "notConnected": "Not directly connected"
+      }
+    }
   },
   "acl": {
     "lists": "Access lists",
@@ -726,7 +756,19 @@
     "shutdown": "{{where}} is shut down.",
     "modeMismatch": "{{a}} is {{ma}} but {{b}} is {{mb}}.",
     "nativeMismatch": "Native VLAN mismatch: {{a}} uses {{va}}, {{b}} uses {{vb}}.",
-    "subnetMismatch": "{{a}} and {{b}} are not in the same subnet."
+    "subnetMismatch": "{{a}} and {{b}} are not in the same subnet.",
+    "ospf": {
+      "area": "OSPF: {{a}} and {{b}} are in different areas, so they do not become neighbours.",
+      "subnet": "OSPF: {{a}} and {{b}} have a different subnet or mask, so they do not become neighbours.",
+      "routerId": "OSPF: {{a}} and {{b}} use the same router ID."
+    },
+    "bgp": {
+      "noPeer": "BGP on {{device}}: no BGP router has address {{peer}}.",
+      "remoteAs": "BGP on {{device}}: the AS numbers for neighbour {{peer}} do not match.",
+      "notConfigured": "BGP on {{device}}: {{peer}} has no neighbour statement back to {{device}}.",
+      "unreachable": "BGP on {{device}}: neighbour {{peer}} cannot be reached.",
+      "notConnected": "BGP on {{device}}: eBGP neighbour {{peer}} is not directly connected."
+    }
   },
   "console": {
     "title": "Console",
