@@ -447,6 +447,10 @@
     "bgp": {
       "title": "Two networks with BGP",
       "text": "Two autonomous systems that exchange their networks over eBGP."
+    },
+    "services": {
+      "title": "Office with services",
+      "text": "PCs on DHCP through a router, and a server with DNS, web and file sharing."
     }
   },
   "topologies": {
@@ -507,7 +511,8 @@
       "routing": "Routes",
       "vlans": "VLANs",
       "acls": "ACLs",
-      "state": "Tables"
+      "state": "Tables",
+      "services": "Services"
     },
     "network": "Network",
     "ipAddress": "IP address",
@@ -589,6 +594,15 @@
         "unreachable": "Unreachable",
         "notConnected": "Not directly connected"
       }
+    },
+    "dhcp": "Get an address automatically (DHCP)",
+    "dhcpHint": "Address, gateway and DNS server come from a DHCP server.",
+    "dns": "DNS server",
+    "dnsDhcpHint": "Leave empty to use the DNS server from DHCP.",
+    "lease": {
+      "noServer": "No DHCP server answers",
+      "noPool": "Server has no pool for this network",
+      "exhausted": "DHCP pool is full"
     }
   },
   "acl": {
@@ -768,6 +782,11 @@
       "notConfigured": "BGP on {{device}}: {{peer}} has no neighbour statement back to {{device}}.",
       "unreachable": "BGP on {{device}}: neighbour {{peer}} cannot be reached.",
       "notConnected": "BGP on {{device}}: eBGP neighbour {{peer}} is not directly connected."
+    },
+    "dhcp": {
+      "noServer": "{{device}} uses DHCP, but no DHCP server answers: put a server with DHCP on its network or set ip helper-address on the router.",
+      "noPool": "{{device}} reaches a DHCP server that has no pool for its network.",
+      "exhausted": "{{device}} gets no address: the DHCP pool is full."
     }
   },
   "console": {
@@ -780,7 +799,9 @@
     "closeAll": "Close console",
     "maximize": "Enlarge",
     "restore": "Make smaller",
-    "input": "Command for {{name}}"
+    "input": "Command for {{name}}",
+    "cmdBanner": "Command prompt of {{name}} (Windows style).",
+    "cmdHint": "Type help for the commands: ipconfig, ping, tracert, nslookup, netsh, curl, net view."
   },
   "devices": {
     "title": "Device library",
@@ -800,15 +821,16 @@
       "switch24": "Access switch with VLANs, trunks and spanning tree. Management address on interface Vlan1.",
       "l3switch24": "Switch that also routes between VLANs with SVIs (interface vlan) and routed ports (no switchport).",
       "chassis6500": "Core switch in the style of a Catalyst 6500: line cards per slot (show module), switch virtual interfaces and routed ports.",
-      "pc": "Workstation with one network card, an IP address and a default gateway.",
-      "server": "Server with two network cards and open ports for web traffic."
-    }
+      "pc": "Windows-style workstation: fixed address or DHCP, DNS server, and a command prompt with ipconfig, ping, tracert and nslookup.",
+      "server": "Server with web, DNS, DHCP and file sharing services, configured in the Services tab."
+    },
+    "cmd": "Command prompt"
   },
   "consolePage": {
     "title": "Console",
-    "subtitle": "The command line of every router and switch, in your browser.",
+    "subtitle": "The command line of every device, in your browser.",
     "howTitle": "Opening a console",
-    "how": "Open a topology and double-click a router or switch, or select it and click the terminal icon in the side panel. Each device gets its own tab; changes you make in the console are saved with the topology and can be undone in the editor.",
+    "how": "Open a topology and double-click a device, or select it and click the terminal icon in the side panel. Routers and switches get an IOS-style command line, PCs and servers a Windows-style command prompt. Each device gets its own tab; changes you make in the console are saved with the topology and can be undone in the editor.",
     "keys": {
       "tab": {
         "title": "Tab",
@@ -842,5 +864,48 @@
     "create": "Create a topology",
     "devices_one": "{{count}} device",
     "devices_other": "{{count}} devices"
+  },
+  "services": {
+    "web": {
+      "title": "Web server",
+      "enable": "Web server (HTTP and HTTPS)",
+      "hint": "Answers on ports 80 and 443. Open the page from a PC with curl http://<server>/.",
+      "pageTitle": "Page title",
+      "body": "Page content"
+    },
+    "dns": {
+      "title": "DNS server",
+      "enable": "DNS server",
+      "hint": "Answers name lookups on UDP port 53 (nslookup, ping <name>).",
+      "none": "No records yet.",
+      "name": "Name",
+      "address": "Address",
+      "add": "Add record"
+    },
+    "dhcp": {
+      "title": "DHCP server",
+      "enable": "DHCP server",
+      "hint": "Hands out addresses to PCs set to DHCP.",
+      "name": "Pool name",
+      "network": "Network",
+      "start": "First address",
+      "end": "Last address",
+      "dns": "DNS server",
+      "add": "Add pool",
+      "relay": "Clients in other networks reach this server through a router with ip helper-address. The pool is chosen by the network of the router interface."
+    },
+    "files": {
+      "title": "File server",
+      "enable": "File sharing (SMB and FTP)",
+      "hint": "Answers on ports 445 and 21. From a PC: net view \\\\<server>, dir \\\\<server>\\<share>, ftp <server>.",
+      "share": "Share name",
+      "files": "Files",
+      "filesHint": "Separate with commas.",
+      "add": "Add share"
+    },
+    "ports": {
+      "title": "Other open ports",
+      "hint": "Extra TCP ports, for example 8080. The services above open their own ports."
+    }
   }
 }

@@ -1,10 +1,10 @@
 import { Maximize2, Minimize2, TerminalSquare, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IosSession, type OperationRun, type Simulator, type Topology } from "@netsim/engine";
+import { isHost, IosSession, WindowsSession, type OperationRun, type Simulator, type Topology } from "@netsim/engine";
 
 /** Console state for one device; kept for as long as the editor is open. */
-type Term = { session: IosSession; lines: string[]; input: string; histPos: number | null; draft: string };
+type Term = { session: IosSession | WindowsSession; lines: string[]; input: string; histPos: number | null; draft: string };
 
 const MAX_LINES = 2000;
 
@@ -36,8 +36,12 @@ export function ConsoleWindow(props: ConsoleProps) {
   const term = (id: string): Term => {
     let x = terms.current.get(id);
     if (!x) {
-      const name = topology.devices.find((d) => d.id === id)?.name ?? "";
-      x = { session: new IosSession(id), lines: [t("console.connected", { name }), t("console.hint"), ""], input: "", histPos: null, draft: "" };
+      const d = topology.devices.find((x) => x.id === id);
+      const name = d?.name ?? "";
+      x =
+        d && isHost(d)
+          ? { session: new WindowsSession(id), lines: [t("console.cmdBanner", { name }), t("console.cmdHint"), ""], input: "", histPos: null, draft: "" }
+          : { session: new IosSession(id), lines: [t("console.connected", { name }), t("console.hint"), ""], input: "", histPos: null, draft: "" };
       terms.current.set(id, x);
     }
     return x;
@@ -46,6 +50,7 @@ export function ConsoleWindow(props: ConsoleProps) {
   const cur = active ? term(active) : null;
   const device = active ? topology.devices.find((d) => d.id === active) : undefined;
   const prompt = cur ? cur.session.prompt(topology) : "";
+  const ios = cur?.session instanceof IosSession ? cur.session : null;
 
   useLayoutEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight });
@@ -74,6 +79,7 @@ export function ConsoleWindow(props: ConsoleProps) {
       print(t("console.readOnly"));
     } else {
       const r = cur.session.execute(line, { topology, sim });
+      if ("clear" in r && r.clear) cur.lines = [];
       print(...r.output);
       if (r.topology) props.onChange(r.topology);
       if (r.run) props.onRun(r.run);
@@ -86,10 +92,10 @@ export function ConsoleWindow(props: ConsoleProps) {
     if (e.key === "Enter") {
       e.preventDefault();
       submit();
-    } else if (e.key === "?") {
+    } else if (e.key === "?" && ios) {
       // IOS shows help immediately and keeps the line.
       e.preventDefault();
-      print(prompt + cur.input + "?", ...cur.session.help(cur.input));
+      print(prompt + cur.input + "?", ...ios.help(cur.input));
       rerender((n) => n + 1);
     } else if (e.key === "Tab") {
       e.preventDefault();
@@ -120,7 +126,7 @@ export function ConsoleWindow(props: ConsoleProps) {
       e.preventDefault();
       e.stopPropagation();
       print(prompt + cur.input + (e.key.toLowerCase() === "z" ? "^Z" : "^C"));
-      cur.session.end();
+      ios?.end();
       setInput("");
     } else if (ctrl && e.key.toLowerCase() === "l") {
       e.preventDefault();
@@ -189,9 +195,4 @@ export function ConsoleWindow(props: ConsoleProps) {
       </div>
     </section>
   );
-}
-
-/** Devices that have a console in this version. Hosts get their command prompt in a later step. */
-export function hasConsole(kind: string): boolean {
-  return kind === "router" || kind === "switch" || kind === "l3switch";
 }

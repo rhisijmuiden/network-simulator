@@ -76,6 +76,7 @@ export function runningConfig(d: Device): string[] {
     if (i.ip) out.push(` ip address ${i.ip.address} ${prefixToMask(i.ip.prefix)}`);
     else if (!isSwitchport(i) || !isSwitch(d)) out.push(" no ip address");
     for (const [id, cfg] of Object.entries(d.protocols)) out.push(...(routingProtocols().find((x) => x.id === id)?.interfaceConfig?.(cfg, d, i) ?? []));
+    if (i.helperAddress) out.push(` ip helper-address ${i.helperAddress}`);
     if (i.aclIn) out.push(` ip access-group ${i.aclIn} in`);
     if (i.aclOut) out.push(` ip access-group ${i.aclOut} out`);
     if (!i.enabled) out.push(" shutdown");

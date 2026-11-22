@@ -447,6 +447,10 @@
     "bgp": {
       "title": "Twee netwerken met BGP",
       "text": "Twee autonome systemen die hun netwerken via eBGP uitwisselen."
+    },
+    "services": {
+      "title": "Kantoor met diensten",
+      "text": "Pc's op DHCP via een router, en een server met DNS, web en gedeelde bestanden."
     }
   },
   "topologies": {
@@ -507,7 +511,8 @@
       "routing": "Routes",
       "vlans": "VLAN's",
       "acls": "ACL's",
-      "state": "Tabellen"
+      "state": "Tabellen",
+      "services": "Diensten"
     },
     "network": "Netwerk",
     "ipAddress": "IP-adres",
@@ -589,6 +594,15 @@
         "unreachable": "Onbereikbaar",
         "notConnected": "Niet direct verbonden"
       }
+    },
+    "dhcp": "Automatisch een adres krijgen (DHCP)",
+    "dhcpHint": "Adres, gateway en DNS-server komen van een DHCP-server.",
+    "dns": "DNS-server",
+    "dnsDhcpHint": "Laat leeg om de DNS-server van DHCP te gebruiken.",
+    "lease": {
+      "noServer": "Geen DHCP-server antwoordt",
+      "noPool": "Server heeft geen pool voor dit netwerk",
+      "exhausted": "DHCP-pool is vol"
     }
   },
   "acl": {
@@ -768,6 +782,11 @@
       "notConfigured": "BGP op {{device}}: {{peer}} heeft geen neighbor-regel terug naar {{device}}.",
       "unreachable": "BGP op {{device}}: buur {{peer}} is niet bereikbaar.",
       "notConnected": "BGP op {{device}}: eBGP-buur {{peer}} is niet direct verbonden."
+    },
+    "dhcp": {
+      "noServer": "{{device}} gebruikt DHCP, maar geen DHCP-server antwoordt: zet een server met DHCP in zijn netwerk of stel ip helper-address in op de router.",
+      "noPool": "{{device}} bereikt een DHCP-server zonder pool voor zijn netwerk.",
+      "exhausted": "{{device}} krijgt geen adres: de DHCP-pool is vol."
     }
   },
   "console": {
@@ -780,7 +799,9 @@
     "closeAll": "Console sluiten",
     "maximize": "Vergroten",
     "restore": "Verkleinen",
-    "input": "Commando voor {{name}}"
+    "input": "Commando voor {{name}}",
+    "cmdBanner": "Opdrachtprompt van {{name}} (Windows-stijl).",
+    "cmdHint": "Typ help voor de commando's: ipconfig, ping, tracert, nslookup, netsh, curl, net view."
   },
   "devices": {
     "title": "Apparatenbibliotheek",
@@ -800,15 +821,16 @@
       "switch24": "Toegangsswitch met VLAN's, trunks en spanning tree. Beheeradres op interface Vlan1.",
       "l3switch24": "Switch die ook routeert tussen VLAN's, met SVI's (interface vlan) en gerouteerde poorten (no switchport).",
       "chassis6500": "Kernswitch in de stijl van een Catalyst 6500: linecards per slot (show module), virtuele switchinterfaces en gerouteerde poorten.",
-      "pc": "Werkstation met één netwerkkaart, een IP-adres en een standaardgateway.",
-      "server": "Server met twee netwerkkaarten en open poorten voor webverkeer."
-    }
+      "pc": "Werkstation in Windows-stijl: vast adres of DHCP, DNS-server en een opdrachtprompt met ipconfig, ping, tracert en nslookup.",
+      "server": "Server met web-, DNS-, DHCP- en bestandsdiensten, in te stellen op het tabblad Diensten."
+    },
+    "cmd": "Opdrachtprompt"
   },
   "consolePage": {
     "title": "Console",
-    "subtitle": "De opdrachtregel van elke router en switch, in je browser.",
+    "subtitle": "De opdrachtregel van elk apparaat, in je browser.",
     "howTitle": "Een console openen",
-    "how": "Open een topologie en dubbelklik op een router of switch, of selecteer hem en klik op het terminalpictogram in het zijpaneel. Elk apparaat krijgt een eigen tabblad; wijzigingen in de console worden met de topologie opgeslagen en zijn in de editor ongedaan te maken.",
+    "how": "Open een topologie en dubbelklik op een apparaat, of selecteer het en klik op het terminalpictogram in het zijpaneel. Routers en switches krijgen een IOS-achtige opdrachtregel, pc's en servers een opdrachtprompt in Windows-stijl. Elk apparaat krijgt een eigen tabblad; wijzigingen in de console worden met de topologie opgeslagen en zijn in de editor ongedaan te maken.",
     "keys": {
       "tab": {
         "title": "Tab",
@@ -842,5 +864,48 @@
     "create": "Topologie maken",
     "devices_one": "{{count}} apparaat",
     "devices_other": "{{count}} apparaten"
+  },
+  "services": {
+    "web": {
+      "title": "Webserver",
+      "enable": "Webserver (HTTP en HTTPS)",
+      "hint": "Antwoordt op poort 80 en 443. Open de pagina vanaf een pc met curl http://<server>/.",
+      "pageTitle": "Paginatitel",
+      "body": "Pagina-inhoud"
+    },
+    "dns": {
+      "title": "DNS-server",
+      "enable": "DNS-server",
+      "hint": "Beantwoordt naamopvragingen op UDP-poort 53 (nslookup, ping <naam>).",
+      "none": "Nog geen records.",
+      "name": "Naam",
+      "address": "Adres",
+      "add": "Record toevoegen"
+    },
+    "dhcp": {
+      "title": "DHCP-server",
+      "enable": "DHCP-server",
+      "hint": "Deelt adressen uit aan pc's die op DHCP staan.",
+      "name": "Poolnaam",
+      "network": "Netwerk",
+      "start": "Eerste adres",
+      "end": "Laatste adres",
+      "dns": "DNS-server",
+      "add": "Pool toevoegen",
+      "relay": "Clients in andere netwerken bereiken deze server via een router met ip helper-address. De pool wordt gekozen op het netwerk van de routerinterface."
+    },
+    "files": {
+      "title": "Bestandsserver",
+      "enable": "Bestanden delen (SMB en FTP)",
+      "hint": "Antwoordt op poort 445 en 21. Vanaf een pc: net view \\\\<server>, dir \\\\<server>\\<share>, ftp <server>.",
+      "share": "Naam van de share",
+      "files": "Bestanden",
+      "filesHint": "Scheid met komma's.",
+      "add": "Share toevoegen"
+    },
+    "ports": {
+      "title": "Andere open poorten",
+      "hint": "Extra TCP-poorten, bijvoorbeeld 8080. De diensten hierboven openen hun eigen poorten."
+    }
   }
 }

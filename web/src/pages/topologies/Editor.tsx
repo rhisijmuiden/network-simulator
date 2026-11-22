@@ -7,7 +7,7 @@ import { api } from "../../api";
 import { Alert, Spinner } from "../../components/ui";
 import { useErrorText } from "../../hooks";
 import { Canvas, type CanvasHandle, type Selection, type Tool } from "../../editor/Canvas";
-import { ConsoleWindow, hasConsole } from "../../editor/Console";
+import { ConsoleWindow } from "../../editor/Console";
 import { CommitInput } from "../../editor/fields";
 import { useTopologyHistory } from "../../editor/history";
 import { Inspector } from "../../editor/Inspector";
@@ -135,7 +135,7 @@ function EditorView({ initial }: { initial: Loaded }) {
 
   const openConsole = (deviceId: string) => {
     const d = topology.devices.find((x) => x.id === deviceId);
-    if (!d || !hasConsole(d.kind)) return;
+    if (!d) return;
     setConsoles((c) => (c.includes(deviceId) ? c : [...c, deviceId]));
     setActiveConsole(deviceId);
   };

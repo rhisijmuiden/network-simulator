@@ -254,7 +254,7 @@ export function Canvas(props: Props) {
           {startDevice && pointer && (
             <line x1={startDevice.x} y1={startDevice.y} x2={pointer.x} y2={pointer.y} stroke="var(--koraal)" strokeWidth={2} strokeDasharray="6 5" />
           )}
-          <Devices topology={topology} selection={selection} problems={props.problemDevices} cableFrom={cableStart?.device} />
+          <Devices topology={topology} running={sim.topology} selection={selection} problems={props.problemDevices} cableFrom={cableStart?.device} />
           <PacketLayer playback={playback} devices={devices} sim={sim} />
         </g>
       </svg>
@@ -343,11 +343,14 @@ function PortLabel({ x, y, text }: { x: number; y: number; text: string }) {
 
 const Devices = memo(function Devices({
   topology,
+  running,
   selection,
   problems,
   cableFrom,
 }: {
   topology: Topology;
+  /** The simulated topology, with DHCP leases: used for host address labels. */
+  running: Topology;
   selection: Selection;
   problems: Set<string>;
   cableFrom?: string;
@@ -355,7 +358,7 @@ const Devices = memo(function Devices({
   return (
     <g>
       {topology.devices.map((d) => {
-        const ip = isHost(d) ? d.interfaces.find((i) => i.ip)?.ip : undefined;
+        const ip = isHost(d) ? (running.devices.find((x) => x.id === d.id) ?? d).interfaces.find((i) => i.ip)?.ip : undefined;
         return (
           <g key={d.id} data-device={d.id} transform={`translate(${d.x},${d.y})`} className="cursor-pointer">
             <DeviceTile kind={d.kind} selected={(selection?.type === "device" && selection.id === d.id) || cableFrom === d.id} />
