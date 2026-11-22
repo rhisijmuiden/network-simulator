@@ -1,0 +1,407 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "saved": "Opgeslagen.",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "secretKept": "Opgeslagen. Laat leeg om het te bewaren."
+  },
+  "nav": {
+    "lab": "Lab",
+    "dashboard": "Dashboard",
+    "topologies": "Topologieën",
+    "devices": "Apparaten",
+    "console": "Console",
+    "lessons": "Lessen & labs",
+    "administration": "Beheer",
+    "users": "Gebruikers",
+    "mail": "Mailserver",
+    "backup": "Back-up & herstel",
+    "updates": "Updates",
+    "audit": "Auditlog",
+    "soon": "Binnenkort"
+  },
+  "top": {
+    "menu": "Menu",
+    "info": "Info",
+    "language": "Taal",
+    "theme": {
+      "system": "Thema: systeem",
+      "light": "Thema: licht",
+      "dark": "Thema: donker"
+    },
+    "profile": "Profiel",
+    "changePassword": "Wachtwoord wijzigen",
+    "logout": "Afmelden"
+  },
+  "roles": {
+    "admin": "Beheerder",
+    "instructor": "Docent",
+    "student": "Student"
+  },
+  "login": {
+    "title": "Aanmelden",
+    "subtitle": "Welkom bij Network Simulator.",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "submit": "Aanmelden",
+    "forgot": "Wachtwoord vergeten? Vraag een beheerder om het te resetten.",
+    "heroA": "Bouw het. Breek het.",
+    "heroB": "Repareer het.",
+    "heroText": "Routers, switches, VLAN's, OSPF en BGP in je browser. Zie elk pakketje reizen."
+  },
+  "password": {
+    "current": "Huidig wachtwoord",
+    "new": "Nieuw wachtwoord",
+    "repeat": "Herhalen",
+    "rules": "Minstens 10 tekens, niet alleen letters of alleen cijfers.",
+    "save": "Wachtwoord wijzigen",
+    "mismatch": "De wachtwoorden zijn niet gelijk.",
+    "changed": "Je wachtwoord is gewijzigd. Andere sessies zijn afgemeld.",
+    "forceTitle": "Kies een wachtwoord",
+    "forceText": "Je bent aangemeld met een eenmalig wachtwoord. Kies je eigen wachtwoord om verder te gaan."
+  },
+  "profile": {
+    "title": "Profiel",
+    "details": "Je gegevens"
+  },
+  "info": {
+    "title": "Over Network Simulator",
+    "version": "Versie",
+    "commit": "Commit",
+    "built": "Gebouwd",
+    "database": "Database",
+    "schema": "schema {{version}}",
+    "moreUpdates": "Naar de pagina Updates",
+    "adminOnly": "Beheerders kunnen hier op updates controleren en ze installeren."
+  },
+  "updates": {
+    "title": "Updates",
+    "subtitle": "Controleer op nieuwe versies, installeer ze en wissel tussen het productie- en testkanaal.",
+    "channel": "Kanaal",
+    "channels": {
+      "production": "Productie",
+      "test": "Test"
+    },
+    "channelHint": {
+      "production": "Stabiele versies",
+      "test": "Voorproefje van de volgende versie"
+    },
+    "installed": "Geïnstalleerd",
+    "installedVersion": "Geïnstalleerde versie",
+    "check": "Controleren op updates",
+    "latestOn": "Nieuwste op {{channel}}",
+    "available": "Update beschikbaar",
+    "switchAvailable": "Ander kanaal",
+    "upToDate": "Up-to-date",
+    "updateNow": "Nu updaten",
+    "switchTo": "Overstappen naar {{channel}}",
+    "confirmText": "De server maakt een back-up van de database, bouwt de nieuwe versie, werkt de database bij en herstart. Dat duurt een paar minuten; iedereen blijft aangemeld. Start de nieuwe versie niet, dan wordt de vorige versie automatisch teruggezet.",
+    "downgradeWarning": "Van test terug naar productie kan een oudere versie betekenen. Databasewijzigingen van de testversie worden niet teruggedraaid; start productie niet, dan wordt de back-up van vóór de overstap teruggezet.",
+    "confirm": "Starten",
+    "lastRun": "Laatste update",
+    "state": {
+      "idle": "Niets bezig",
+      "queued": "Wacht op start",
+      "fetching": "Downloaden",
+      "building": "Bouwen",
+      "backup": "Back-up maken",
+      "installing": "Installeren",
+      "completed": "Voltooid",
+      "failed": "Mislukt",
+      "rolling-back": "Terugzetten",
+      "rolled-back": "Teruggezet"
+    },
+    "howItWorks": "Updates komen uit de GitHub-repository: het productiekanaal volgt de branch production, het testkanaal de branch test. De hulpdienst network-simulator-update installeert ze met rootrechten; de webinterface zelf doet dat nooit."
+  },
+  "dashboard": {
+    "welcomeBack": "Welkom terug",
+    "intro": "Ontwerp netwerken, configureer virtuele Cisco-achtige routers en switches via de CLI en zie pakketjes bewegen, zodat je in één oogopslag ziet wat werkt.",
+    "roadmap": "Roadmap",
+    "roadmapText": "Het platform wordt in vier fasen gebouwd.",
+    "phase": "Fase {{n}}",
+    "phases": {
+      "foundation": {
+        "title": "Fundament",
+        "text": "Gebruikers, mailserver, versleutelde back-ups, updates vanuit de interface, Engels en Nederlands."
+      },
+      "engine": {
+        "title": "Simulatie-engine",
+        "text": "Topologie-editor met slepen en neerzetten, verbindingen en geanimeerde verkeersstromen."
+      },
+      "devices": {
+        "title": "Apparaten & CLI",
+        "text": "Cisco-achtige routers en switches (ook Catalyst 6500): VLAN's, statische routes, OSPF, BGP, ACL's. Windows-clients en web-/bestandsservers."
+      },
+      "lessons": {
+        "title": "Lessen & troubleshooting",
+        "text": "Begeleide labs en kapotte netwerken om te repareren, met automatische controle."
+      }
+    },
+    "system": "Systeemstatus",
+    "mail": "Mailserver",
+    "backup": "Back-up",
+    "notConfigured": "Niet ingesteld",
+    "noBackup": "Nog geen back-up",
+    "ok": "OK",
+    "action": "Actie nodig"
+  },
+  "soon": {
+    "title": "Komt in fase {{phase}}",
+    "text": "Dit deel van de simulator staat op de roadmap. Het fundament waarop het bouwt is klaar.",
+    "topologies": "Teken netwerken en zie het verkeer stromen.",
+    "devices": "Routers, switches, clients en servers om in een topologie te plaatsen.",
+    "console": "De opdrachtregel van elk apparaat, in je browser.",
+    "lessons": "Begeleide labs en troubleshootingopdrachten."
+  },
+  "users": {
+    "title": "Gebruikers",
+    "subtitle": "Beheerders beheren het platform, docenten bereiden labs voor, studenten oefenen.",
+    "add": "Gebruiker toevoegen",
+    "edit": "Gebruiker bewerken",
+    "username": "Gebruikersnaam",
+    "displayName": "Naam",
+    "email": "E-mail",
+    "role": "Rol",
+    "language": "Taal",
+    "lastLogin": "Laatst aangemeld",
+    "disabled": "Uitgeschakeld",
+    "disabledHint": "Een uitgeschakelde gebruiker kan niet aanmelden.",
+    "mustChange": "Eenmalig wachtwoord",
+    "resetPassword": "Wachtwoord resetten",
+    "empty": "Nog geen gebruikers",
+    "confirmDelete": "Gebruiker {{name}} verwijderen?",
+    "otpHint": "De gebruiker krijgt een eenmalig wachtwoord en kiest bij de eerste aanmelding een eigen wachtwoord.",
+    "otpTitle": "Eenmalig wachtwoord",
+    "otpText": "Geef dit wachtwoord aan {{name}}. Het wordt maar één keer getoond.",
+    "roleHint": {
+      "admin": "Volledige toegang, ook tot het beheer.",
+      "instructor": "Bereidt lessen voor en volgt studenten (fase 4).",
+      "student": "Werkt aan labs en topologieën."
+    }
+  },
+  "mail": {
+    "title": "Mailserver",
+    "subtitle": "Je eigen SMTP-server voor meldingen, zoals mislukte back-ups.",
+    "server": "SMTP-server",
+    "enabled": "E-mail versturen",
+    "enabledHint": "Zet uit om alle uitgaande mail te stoppen.",
+    "host": "Server",
+    "port": "Poort",
+    "security": "Versleuteling",
+    "securityOptions": {
+      "starttls": "STARTTLS (verplicht)",
+      "tls": "TLS (impliciet)",
+      "none": "Geen"
+    },
+    "securityHint": {
+      "starttls": "Meestal poort 587. De verbinding moet naar TLS gaan, anders wordt niets verstuurd.",
+      "tls": "Meestal poort 465. Versleuteld vanaf de eerste byte.",
+      "none": "Alleen voor een relay op het lokale netwerk."
+    },
+    "minTls": "Minimale TLS-versie",
+    "verifyCert": "Certificaat van de server controleren",
+    "verifyCertHint": "Zet alleen uit voor een server met een zelfondertekend certificaat.",
+    "insecure": "Zonder versleuteling gaan het wachtwoord en de berichten leesbaar over het netwerk.",
+    "authentication": "Authenticatie",
+    "authMethod": "Methode",
+    "noAuth": "Geen authenticatie",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "sender": "Afzender",
+    "fromName": "Naam afzender",
+    "fromAddress": "Adres afzender",
+    "replyTo": "Antwoordadres (optioneel)",
+    "dkim": "DKIM-ondertekening (optioneel)",
+    "dkimHint": "Onderteken berichten met je eigen DKIM-sleutel, zodat ze door SPF/DKIM/DMARC-controles komen. Publiceer de publieke sleutel als selector._domainkey.domein.",
+    "dkimDomain": "Domein",
+    "dkimSelector": "Selector",
+    "dkimKey": "Privésleutel (PEM)",
+    "test": "Testen",
+    "testHint": "Verstuurt een testbericht met de instellingen in het formulier, ook voordat je ze opslaat.",
+    "testTo": "Versturen naar",
+    "sendTest": "Testbericht versturen",
+    "testSent": "Testbericht verstuurd naar {{to}}."
+  },
+  "backup": {
+    "title": "Back-up & herstel",
+    "subtitle": "Versleutelde volledige en incrementele back-ups naar FTP, FTPS of SCP, en terugzetten vanaf elk ervan.",
+    "tabs": {
+      "locations": "Locaties",
+      "schedule": "Planning & versleuteling",
+      "history": "Geschiedenis",
+      "restore": "Terugzetten"
+    },
+    "addLocation": "Locatie toevoegen",
+    "editLocation": "Locatie bewerken",
+    "name": "Naam",
+    "type": "Type",
+    "types": {
+      "scp": "SCP / SFTP",
+      "ftps": "FTPS",
+      "ftp": "FTP"
+    },
+    "host": "Server",
+    "port": "Poort",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "authType": "Aanmelden met",
+    "authPassword": "Wachtwoord",
+    "authKey": "SSH-sleutel",
+    "privateKey": "Privésleutel",
+    "privateKeyHint": "OpenSSH- of PEM-formaat. Zet de publieke sleutel in ~/.ssh/authorized_keys van de back-upgebruiker.",
+    "keyPassphrase": "Wachtwoordzin van de sleutel (optioneel)",
+    "path": "Map",
+    "pathHint": "Ten opzichte van de thuismap van de gebruiker, of een absoluut pad.",
+    "implicitTls": "Impliciete TLS",
+    "implicitTlsHint": "Poort 990. Uit betekent expliciete TLS (AUTH TLS) op poort 21.",
+    "verifyCert": "Certificaat controleren",
+    "verifyCertHint": "Uit voor een zelfondertekend certificaat: na de test vertrouw je dan de vingerafdruk.",
+    "ftpWarning": "Gewone FTP verstuurt het wachtwoord onversleuteld. De back-up zelf is altijd versleuteld. Gebruik SCP of FTPS als het kan.",
+    "enabled": "Gebruiken voor geplande back-ups",
+    "enabledHint": "Uit pauzeert geplande back-ups naar deze locatie; terugzetten werkt wel.",
+    "pinned": "Vertrouwde vingerafdruk:",
+    "test": "Verbinding testen",
+    "testOk": "Verbinding werkt: een testbestand is geschreven, gelezen en verwijderd.",
+    "testOkExisting": "Verbinding werkt. In deze map staan al back-ups van Network Simulator.",
+    "fingerprintUnknown": "Eerste verbinding: vergelijk deze vingerafdruk met de server en vertrouw hem.",
+    "fingerprintChanged": "De vingerafdruk van de server is veranderd! Vertrouw hem alleen als je weet waarom (bijvoorbeeld een nieuwe server).",
+    "trust": "Deze vingerafdruk vertrouwen",
+    "trusted": "Vingerafdruk vertrouwd. Test opnieuw om de verbinding te controleren.",
+    "noLocations": "Nog geen back-uplocaties",
+    "noLocationsText": "Voeg een NAS, server of hostingaccount toe om versleutelde back-ups op te slaan.",
+    "confirmDelete": "Locatie {{name}} verwijderen? De back-ups op de locatie zelf blijven staan.",
+    "paused": "Gepauzeerd",
+    "backupNow": "Nu back-up maken",
+    "fullNow": "Volledige back-up",
+    "started": "Back-up naar {{name}} gestart. Volg hem onder Geschiedenis.",
+    "schedule": "Planning",
+    "scheduleEnabled": "Geplande back-ups",
+    "scheduleHint": "Loopt naar elke ingeschakelde locatie. Gemiste back-ups lopen zodra de server weer aan staat.",
+    "every": "Elke",
+    "daily": "Dag",
+    "hours_one": "{{count}} uur",
+    "hours_other": "{{count}} uur",
+    "startTime": "Vanaf",
+    "fullEvery": "Nieuwe volledige back-up elke (dagen)",
+    "fullEveryHint": "Daartussen zijn de back-ups incrementeel.",
+    "keep": "Aantal volledige back-ups bewaren",
+    "keepHint": "Oudere worden met hun incrementele back-ups verwijderd.",
+    "retentionSummary": "Je kunt ongeveer {{weeks}} week terug.",
+    "needPassphrase": "Stel eerst een wachtwoordzin voor de back-ups in: zonder loopt er geen back-up.",
+    "encryption": "Versleuteling",
+    "encryptionText": "Elke back-up wordt gecomprimeerd en versleuteld (AES-256-GCM) voordat hij de server verlaat. De sleutel is beschermd met je wachtwoordzin.",
+    "storePassphrase": "Bewaar de wachtwoordzin in je wachtwoordmanager. Zonder kan niemand de back-ups terugzetten, jij ook niet.",
+    "passphrase": "Wachtwoordzin back-up",
+    "currentPassphrase": "Huidige wachtwoordzin",
+    "newPassphrase": "Nieuwe wachtwoordzin",
+    "passphraseRules": "Minstens 12 tekens.",
+    "setPassphrase": "Wachtwoordzin instellen",
+    "changePassphrase": "Wachtwoordzin wijzigen",
+    "passSaved": "Wachtwoordzin opgeslagen.",
+    "passUnreachable": "Wachtwoordzin opgeslagen, maar deze locaties konden niet worden bijgewerkt: {{names}}. Hun bestaande back-ups gebruiken nog de oude wachtwoordzin.",
+    "when": "Wanneer",
+    "location": "Locatie",
+    "kind": "Soort",
+    "kinds": {
+      "full": "Volledig",
+      "incremental": "Incrementeel"
+    },
+    "result": "Resultaat",
+    "size": "Grootte",
+    "uploaded": "{{size}} geüpload",
+    "status": {
+      "running": "Bezig",
+      "success": "Voltooid",
+      "failed": "Mislukt"
+    },
+    "trigger": {
+      "manual": "Handmatig",
+      "schedule": "Gepland"
+    },
+    "noRuns": "Nog geen back-ups",
+    "restoreFrom": "Terugzetten vanaf",
+    "chooseLocation": "Kies een locatie",
+    "otherLocation": "Andere locatie (nieuwe server)…",
+    "otherHint": "Zet terug vanaf een locatie die niet op deze server is ingesteld, bijvoorbeeld na het installeren van een nieuwe server.",
+    "passphraseOptional": "Laat leeg om de wachtwoordzin van deze server te gebruiken.",
+    "passphraseOther": "De wachtwoordzin van de server die de back-ups maakte.",
+    "findBackups": "Back-ups zoeken",
+    "available": "{{count}} back-up(s) gevonden",
+    "version": "Versie",
+    "restoreThis": "Deze back-up terugzetten",
+    "confirmRestoreTitle": "Back-up terugzetten",
+    "confirmRestoreText": "Alle huidige gegevens worden vervangen door de back-up van {{date}}. De server herstart en iedereen wordt afgemeld. De huidige toestand blijft bewaard tot de volgende keer terugzetten en wordt automatisch teruggezet als het mislukt.",
+    "typeRestore": "Typ RESTORE om te bevestigen",
+    "restoreOf": "Back-up van {{date}}",
+    "restoreSignIn": "Meld je opnieuw aan met een account uit de back-up.",
+    "restoreState": {
+      "downloading": "Downloaden en controleren",
+      "staged": "Gecontroleerd. De server herstart om hem toe te passen…",
+      "applying": "Back-up wordt toegepast…",
+      "completed": "Terugzetten voltooid",
+      "failed": "Terugzetten mislukt",
+      "rolled-back": "Terugzetten mislukt: de vorige toestand is teruggezet"
+    }
+  },
+  "audit": {
+    "title": "Auditlog",
+    "subtitle": "Wie deed wat en wanneer.",
+    "when": "Wanneer",
+    "who": "Wie",
+    "action": "Actie",
+    "detail": "Details"
+  },
+  "errors": {
+    "generic": "Er ging iets mis ({{code}}).",
+    "validation": "Niet alle velden zijn geldig.",
+    "server": {
+      "error": "Serverfout. Kijk in het serverlog."
+    },
+    "auth": {
+      "invalidCredentials": "Verkeerde gebruikersnaam of wachtwoord.",
+      "required": "Meld je aan.",
+      "forbidden": "Je hebt hier geen toegang toe.",
+      "passwordChangeRequired": "Kies eerst een nieuw wachtwoord."
+    },
+    "password": {
+      "tooShort": "Het wachtwoord moet minstens 10 tekens zijn.",
+      "tooSimple": "Gebruik meer dan alleen letters of alleen cijfers.",
+      "currentWrong": "Het huidige wachtwoord klopt niet.",
+      "same": "Het nieuwe wachtwoord is hetzelfde als het oude."
+    },
+    "users": {
+      "exists": "Deze gebruikersnaam is al in gebruik.",
+      "cannotDemoteSelf": "Je kunt jezelf niet uitschakelen of je eigen beheerdersrol afnemen.",
+      "cannotDeleteSelf": "Je kunt jezelf niet verwijderen."
+    },
+    "mail": {
+      "testFailed": "Het testbericht kon niet worden verstuurd.",
+      "notConfigured": "De mailserver is niet ingesteld."
+    },
+    "backup": {
+      "connectionFailed": "Kan geen verbinding maken.",
+      "fingerprintChanged": "De vingerafdruk van de server is veranderd. Vertrouw eerst de nieuwe vingerafdruk bij de locatie.",
+      "fingerprintUnknown": "De vingerafdruk van de server wordt nog niet vertrouwd. Test de locatie en vertrouw hem.",
+      "noPassphrase": "Stel eerst een wachtwoordzin voor de back-ups in.",
+      "wrongPassphrase": "De wachtwoordzin klopt niet voor de back-ups op deze locatie.",
+      "noRepository": "In deze map staan geen back-ups van Network Simulator.",
+      "alreadyRunning": "Er loopt al een back-up.",
+      "locationNotFound": "Locatie niet gevonden.",
+      "restoreRunning": "Er wordt al een back-up teruggezet.",
+      "newerVersion": "Deze back-up is gemaakt met een nieuwere versie. Update eerst deze server.",
+      "notFound": "Back-up niet gevonden.",
+      "corrupt": "De back-up is beschadigd.",
+      "checksumMismatch": "De back-up is beschadigd (controlesom klopt niet).",
+      "unknownFormat": "Onbekend back-upformaat."
+    },
+    "updates": {
+      "repoNotFound": "De update-repository is niet gevonden. Stel bij een privérepository NETSIM_UPDATE_TOKEN in.",
+      "github": "GitHub is niet bereikbaar.",
+      "invalidCommit": "Ongeldige versie.",
+      "running": "Er loopt al een update."
+    }
+  }
+}

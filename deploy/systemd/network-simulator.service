@@ -1,0 +1,41 @@
+[Unit]
+Description=Network Simulator
+Documentation=https://github.com/rhisijmuiden/network-simulator
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=simple
+User=netsim
+Group=netsim
+EnvironmentFile=/etc/network-simulator/server.env
+WorkingDirectory=/opt/network-simulator/current
+ExecStart=/usr/bin/node server/dist/index.js
+Restart=on-failure
+RestartSec=5s
+
+# Hardening: the web server cannot change its own code or the system.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+LockPersonality=true
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0027
+ReadWritePaths=/var/lib/network-simulator
+
+[Install]
+WantedBy=multi-user.target

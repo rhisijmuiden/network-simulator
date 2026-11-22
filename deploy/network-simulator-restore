@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Applies a restore that was downloaded and verified in the web interface.
+# Started by network-simulator-restore.path when the server writes
+# /var/lib/network-simulator/restore/request.json.
+#
+# Root is only needed to stop and start the server; the restore itself runs
+# as the netsim user (it only reads the staged files the server verified).
+set -uo pipefail
+REQUEST=/var/lib/network-simulator/restore/request.json
+[[ -f "$REQUEST" && ! -L "$REQUEST" ]] || { rm -f "$REQUEST"; exit 0; }
+
+echo "network-simulator-restore: stopping the server"
+systemctl stop network-simulator.service
+/usr/local/bin/network-simulator restore-apply
+rc=$?
+rm -f "$REQUEST"
+echo "network-simulator-restore: starting the server (restore exit code $rc)"
+systemctl start network-simulator.service
+exit $rc

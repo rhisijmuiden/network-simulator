@@ -1,0 +1,10 @@
+[Unit]
+Description=Network Simulator restore (applies a backup verified in the web interface)
+Documentation=https://github.com/rhisijmuiden/network-simulator
+After=postgresql.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/network-simulator-restore
+TimeoutStartSec=2h
+PrivateTmp=true
