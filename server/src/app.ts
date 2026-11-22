@@ -11,6 +11,7 @@ import { authRoutes } from "./routes/auth.js";
 import { backupRoutes } from "./routes/backup.js";
 import { mailRoutes } from "./routes/mail.js";
 import { systemRoutes } from "./routes/system.js";
+import { topologyRoutes } from "./routes/topologies.js";
 import { userRoutes } from "./routes/users.js";
 
 export async function buildApp(opts: { logger?: boolean } = {}) {
@@ -63,6 +64,7 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(userRoutes);
   await app.register(mailRoutes);
   await app.register(backupRoutes);
+  await app.register(topologyRoutes);
 
   if (existsSync(config.webDir)) {
     await app.register(fastifyStatic, { root: config.webDir, wildcard: false });

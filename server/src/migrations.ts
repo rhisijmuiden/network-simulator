@@ -77,4 +77,22 @@ export const migrations: { version: number; name: string; up: string }[] = [
       CREATE INDEX backup_runs_started_idx ON backup_runs(started_at DESC);
     `,
   },
+  {
+    version: 2,
+    name: "topologies",
+    up: `
+      CREATE TABLE topologies (
+        id serial PRIMARY KEY,
+        owner_id integer REFERENCES users(id) ON DELETE SET NULL,
+        name text NOT NULL,
+        description text NOT NULL DEFAULT '',
+        data jsonb NOT NULL,
+        device_count integer NOT NULL DEFAULT 0,
+        link_count integer NOT NULL DEFAULT 0,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE INDEX topologies_owner_idx ON topologies(owner_id, updated_at DESC);
+    `,
+  },
 ];

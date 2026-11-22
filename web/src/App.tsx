@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation, useMatch } from "react-router";
 import { useAuth } from "./auth";
 import { Sidebar } from "./components/Sidebar";
 import { Topbar } from "./components/Topbar";
@@ -14,18 +14,28 @@ import Dashboard from "./pages/Dashboard";
 import ForcePasswordChange from "./pages/ForcePasswordChange";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import TopologyEditor from "./pages/topologies/Editor";
+import TopologyList from "./pages/topologies/List";
 
 function Shell() {
   const [open, setOpen] = useState(false);
+  // The topology editor uses the whole area next to the menu.
+  const fullBleed = useMatch("/topologies/:id");
   return (
     <div className="flex h-full">
       <Sidebar open={open} onNavigate={() => setOpen(false)} />
       {open && <div className="fixed inset-0 z-30 bg-nacht/50 md:hidden" onClick={() => setOpen(false)} />}
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+      <div className={`flex min-w-0 flex-1 flex-col ${fullBleed ? "overflow-hidden" : "overflow-y-auto"}`}>
         <Topbar onMenu={() => setOpen(true)} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
-          <Outlet />
-        </main>
+        {fullBleed ? (
+          <main className="min-h-0 flex-1">
+            <Outlet />
+          </main>
+        ) : (
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 md:py-8">
+            <Outlet />
+          </main>
+        )}
       </div>
     </div>
   );
@@ -57,7 +67,8 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route element={<Shell />}>
           <Route index element={<Dashboard />} />
-          <Route path="topologies" element={<ComingSoon feature="topologies" phase={2} />} />
+          <Route path="topologies" element={<TopologyList />} />
+          <Route path="topologies/:id" element={<TopologyEditor />} />
           <Route path="devices" element={<ComingSoon feature="devices" phase={3} />} />
           <Route path="console" element={<ComingSoon feature="console" phase={3} />} />
           <Route path="lessons" element={<ComingSoon feature="lessons" phase={4} />} />

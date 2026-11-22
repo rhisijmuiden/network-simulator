@@ -7,19 +7,41 @@ oogopslag ziet wat werkt en wat niet.
 
 [English](README.md)
 
-> **Status:** fase 1 van 4, het fundament. De simulator zelf volgt in de
-> volgende fasen (zie de roadmap).
+> **Status:** fase 2 van 4. Het fundament en de simulatie-engine met de
+> topologie-editor zijn klaar; de CLI van de apparaten en de lessen volgen (zie de roadmap).
 
 ## Roadmap
 
 | Fase | Wat | Status |
 | --- | --- | --- |
 | 1 | Fundament: gebruikers, mailserver, versleutelde back-ups, updates vanuit de interface, Engels en Nederlands | Klaar |
-| 2 | Simulatie-engine, visuele topologie-editor, geanimeerde verkeersstromen | Gepland |
+| 2 | Simulatie-engine, visuele topologie-editor, geanimeerde verkeersstromen | Klaar |
 | 3 | Cisco-achtige CLI voor routers en switches, vanaf nul gebouwd (ook Catalyst 6500-stijl): VLAN's, trunks, statische routes, OSPF, BGP, ACL's, later IPsec. Windows-werkstations en web-/bestandsservers | Gepland |
 | 4 | Lessen en troubleshootingopdrachten met automatische controle | Gepland |
 
 Er worden geen echte Cisco-images gebruikt: elk apparaat wordt door de eigen engine van het platform gesimuleerd.
+
+## Wat zit er in fase 2
+
+- **Topologie-editor**: sleep routers, switches, een multilayer-switch, pc's en
+  servers naar het canvas, trek kabels van poort naar poort, ongedaan maken,
+  automatisch opslaan, importeren/exporteren als bestand en startlabs (één switch,
+  twee routers, VLAN's, redundante switches).
+- **Eigen simulatie-engine** (`engine/`, TypeScript, ook gebruikt door de server):
+  Ethernet-switching met MAC-learning, VLAN's, access- en trunkpoorten (802.1Q,
+  native VLAN), spanning tree (verkiezing van de root bridge, geblokkeerde poorten),
+  IPv4 met ARP, gerouteerde poorten, router-on-a-stick-subinterfaces,
+  VLAN-interfaces (SVI), statische routes, extended ACL's (IP/ICMP/TCP/UDP met
+  poorten) en een aansluitpunt voor OSPF en BGP.
+- **Testen met animatie**: ping, traceroute en TCP-verbinding. Elk frame beweegt als
+  gekleurd bolletje over de kabels; een weggegooid pakket krijgt een rood kruis op
+  de juiste poort met de reden ("geen route naar 10.2.0.10", "VLAN 20 bestaat niet
+  op deze switch").
+- **Tabellen per apparaat** zoals `show`-commando's: interfaces, routeringstabel,
+  ARP-tabel, MAC-adrestabel en spanning-tree-rollen.
+- **Configuratiecontrole** die veelgemaakte fouten vindt voordat je een pakket
+  verstuurt: dubbele IP-adressen, gateway buiten het subnet, verschillende native
+  VLAN's en meer. Zie [docs/topologies.nl.md](docs/topologies.nl.md).
 
 ## Wat zit er in fase 1
 

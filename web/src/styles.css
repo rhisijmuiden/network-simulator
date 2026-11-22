@@ -58,3 +58,11 @@ body {
 }
 .signal-1 { animation: signal 1.6s ease-in-out infinite; }
 .signal-2 { animation: signal 1.6s ease-in-out 0.3s infinite; }
+
+/* Topology editor: network device tiles stay dark but lift off the dark canvas. */
+:root {
+  --tile: var(--nacht);
+}
+[data-theme="dark"] {
+  --tile: #22345c;
+}
